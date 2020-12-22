@@ -75,12 +75,12 @@ Furthermore, the thread id does not seem to be very consistent."
                  (overlay-put child-thread-overlay 'priority -60)
                  (overlay-put child-thread-overlay 'unread unread)
                  (overlay-put child-thread-overlay 'thread-child t)
-                 (overlay-put child-thread-overlay 'thread-id (string-to-number thread-id))
+                 (overlay-put child-thread-overlay 'thread-id thread-id)
 
                  (overlay-put parent-thread-overlay 'face 'mu4e-headers-thread-parent-face)
                  (overlay-put parent-thread-overlay 'priority -60)
                  (overlay-put parent-thread-overlay 'thread-parent t)
-                 (overlay-put parent-thread-overlay 'thread-id (string-to-number thread-id)))
+                 (overlay-put parent-thread-overlay 'thread-id thread-id)))
              ;; Set the new parent (this relies on default message order in header's view)
              (setq parent-thread-id thread-id
                  parent-thread-overlay (make-overlay
@@ -111,7 +111,8 @@ Unread message are not folded."
           (when overlay
             (let ((id (overlay-get overlay 'thread-id))
                   (unread (overlay-get overlay 'unread)))
-              (if (and (not unread) (or (not thread-id) (eq id thread-id)))
+              (if (and (not unread) (or (not thread-id)
+                                        (string= id thread-id)))
                   (overlay-put overlay 'invisible value)))))
         (forward-line 1)))))
 
