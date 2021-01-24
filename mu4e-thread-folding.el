@@ -27,7 +27,7 @@
 
 ;;; Code:
 (require 'mu4e)
-
+(require 'color)
 
 (defvar mu4e-headers-thread-base-color "#673AB7")
 
