@@ -85,7 +85,7 @@ Furthermore, the thread id does not seem to be very consistent."
              (setq parent-thread-id thread-id
                  parent-thread-overlay (make-overlay
                                         (line-beginning-position)
-                                        (+ 1 (line-end-position)))))))))))
+                                        (+ 1 (line-end-position))))))))))
 
 
 (defun mu4e-headers-get-overlay (prop)
