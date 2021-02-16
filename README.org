@@ -29,6 +29,6 @@ Options are accessible from the ~mu4e-thread-folding~ customizable group.
 
 *** Screenchot
 
-[[./agenda.png]]
+[[./screenshot.png]]
 
 
