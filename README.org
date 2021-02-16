@@ -1,0 +1,34 @@
+*** mu4e thread folding
+
+[[file:mu4e-thread-folding.el][mu4e-thread-folding.el]] is a small library to enable threads folding in
+[[https://www.djcbsoftware.nl/code/mu/mu4e.html][mu4e]]. This works by using overlays with an [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlay-Properties.html][invisible property]] and
+setting hooks at the right place. It is possible to configure colors
+to better highlight a thread and also to have a prefix string
+indicating if a thread is folded or not. Note that when a thread is
+folded, any unread child remains visible.
+
+*** Usage
+
+The prefix string is displayed over the header line and it is thus
+recommended to have an empty field at the start of an header line.
+Have a look at ~mu4e-headers-fields~.
+
+#+begin_src lisp
+(require 'mu4e-thread-folding)
+
+(add-to-list 'mu4e-header-info-custom
+             '(:empty . (:name "Empty"
+                         :shortname ""
+                         :function (lambda (msg) "  "))))
+(setq mu4e-headers-fields '((:empty . 2) ... )
+#+end_src
+
+*** Customization
+
+Options are accessible from the ~mu4e-thread-folding~ customizable group.
+
+*** Screenchot
+
+[[./agenda.png]]
+
+
