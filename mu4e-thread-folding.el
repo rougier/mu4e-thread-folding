@@ -86,7 +86,7 @@
                     :background "#DCE6F9")
 
 (set-face-attribute 'mu4e-thread-folding-root-folded-face nil
-                    :inherit 'default
+                    :inherit nil
                     :overline nil
                     :underline nil
                     :foreground nil
