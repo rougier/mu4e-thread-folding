@@ -27,6 +27,7 @@
 
 ;;; Code:
 (require 'mu4e)
+(require 'color)
 
 (defgroup mu4e-thread-folding '()
   "Group for mu4e thread folding options")
