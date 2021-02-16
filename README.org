@@ -25,10 +25,10 @@ Have a look at ~mu4e-headers-fields~.
 
 *** Keybindings
 
-- → : fold current thread
-- ← : unfold current thread
-- shift + → : fold all threads
-- shift + ← : unfold all threads
+- → : unfold current thread
+- ← : fold current thread
+- shift + → : unfold all threads
+- shift + ← : fold all threads
 
 
 *** Customization
