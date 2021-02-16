@@ -25,9 +25,9 @@ Have a look at ~mu4e-headers-fields~.
 
 *** Customization
 
-Options are accessible from the ~mu4e-thread-folding~ customizable group.
+Options are accessible from the ~mu4e-thread-folding~ customization group.
 
-*** Screenchot
+*** Screenshot
 
 [[./screenshot.png]]
 
