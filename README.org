@@ -23,6 +23,14 @@ Have a look at ~mu4e-headers-fields~.
 (setq mu4e-headers-fields '((:empty . 2) ... )
 #+end_src
 
+*** Keybindings
+
+- → : fold current thread
+- ← : unfold current thread
+- shift + → : fold all threads
+- shift + ← : unfold all threads
+
+
 *** Customization
 
 Options are accessible from the ~mu4e-thread-folding~ customization group.
