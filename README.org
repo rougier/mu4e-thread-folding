@@ -20,15 +20,22 @@ Have a look at ~mu4e-headers-fields~.
              '(:empty . (:name "Empty"
                          :shortname ""
                          :function (lambda (msg) "  "))))
-(setq mu4e-headers-fields '((:empty . 2) ... )
+(setq mu4e-headers-fields '((:empty . 2)
+                            (:human-date    .   12)
+                            (:flags         .    6)
+                            (:mailing-list  .   10)
+                            (:from          .   22)
+                            (:subject       .   nil)))
 #+end_src
 
 *** Keybindings
 
-- → : unfold current thread
-- ← : fold current thread
-- shift + → : unfold all threads
-- shift + ← : fold all threads
+#+begin_src lisp
+(define-key mu4e-headers-mode-map (kbd "<left>") 'mu4e-headers-fold-at-point)
+(define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
+(define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
+(define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+#+end_src
 
 
 *** Customization
