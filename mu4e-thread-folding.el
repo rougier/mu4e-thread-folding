@@ -1,10 +1,10 @@
-;;; mu4e-thread-folding -- -*- lexical-binding: t -*-
+;;; mu4e-thread-folding.el --- Thread folding support for mu4e -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021 Nicolas P. Rougier
 ;;
 ;; Author: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; Homepage: https://github.com/rougier/mu4e-thread-folding
-;; Keywords: mu4e
+;; Keywords: mail
 ;; Version: 0.2
 ;; Package-Requires: ((emacs "26.1"))
 
@@ -24,6 +24,32 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+
+;; mu4e-thread-folding.el is a small library to enable threads folding in
+;; mu4e. This works by using overlays with an invisible property and
+;; setting hooks at the right place. It is possible to configure colors
+;; to better highlight a thread and also to have a prefix string
+;; indicating if a thread is folded or not. Note that when a thread is
+;; folded, any unread child remains visible.
+
+;; Usage:
+
+;; The prefix string is displayed over the header line and it is thus
+;; recommended to have an empty field at the start of an header line.
+;; Have a look at ~mu4e-headers-fields~.
+;;
+;; (require 'mu4e-thread-folding)
+;; (add-to-list 'mu4e-header-info-custom
+;;              '(:empty . (:name "Empty"
+;;                          :shortname ""
+;;                          :function (lambda (msg) "  "))))
+;; (setq mu4e-headers-fields '((:empty         .    2)
+;;                             (:human-date    .   12)
+;;                             (:flags         .    6)
+;;                             (:mailing-list  .   10)
+;;                             (:from          .   22)
+;;                             (:subject       .   nil)))
+
 
 ;;; Code:
 (require 'mu4e)
@@ -321,3 +347,4 @@ Unread message are not folded."
 (define-key mu4e-headers-mode-map (kbd "<tab>") 'mu4e-headers-toggle-at-point)
 
 (provide 'mu4e-thread-folding)
+;;; mu4e-thread-folding.el ends here
