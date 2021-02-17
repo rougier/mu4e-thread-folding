@@ -31,9 +31,10 @@ Have a look at ~mu4e-headers-fields~.
 *** Keybindings
 
 #+begin_src lisp
-(define-key mu4e-headers-mode-map (kbd "<left>") 'mu4e-headers-fold-at-point)
-(define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
-(define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
+(define-key mu4e-headers-mode-map (kbd "<tab>")     'mu4e-headers-toggle-at-point)
+(define-key mu4e-headers-mode-map (kbd "<left>")    'mu4e-headers-fold-at-point)
+(define-key mu4e-headers-mode-map (kbd "<S-left>")  'mu4e-headers-fold-all)
+(define-key mu4e-headers-mode-map (kbd "<right>")   'mu4e-headers-unfold-at-point)
 (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
 #+end_src
 

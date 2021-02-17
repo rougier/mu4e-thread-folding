@@ -174,6 +174,7 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put root-overlay 'priority overlay-priority)
                      (overlay-put root-overlay 'thread-root t)
                      (overlay-put root-overlay 'thread-id id)
+                     (overlay-put root-overlay 'folded t)
                      (overlay-put root-prefix-overlay 'display root-folded-prefix))
                  
                  ;; Else, set the new root (this relies on default message order in header's view)
@@ -237,7 +238,8 @@ Unread message are not folded."
                 (let ((id                  (overlay-get local-root-overlay 'thread-id))
                       (root-prefix-overlay (mu4e-headers-get-overlay 'display root-prefix-beg)))
                   (setq root-overlay local-root-overlay)
-                  (if (or (not thread-id) (string= id thread-id))
+                  (when (or (not thread-id) (string= id thread-id))
+                    (overlay-put root-overlay 'folded value)
                     (if value
                         (progn (overlay-put root-prefix-overlay 'display root-folded-prefix)
                                (overlay-put root-overlay 'face root-folded-face))
@@ -250,6 +252,31 @@ Unread message are not folded."
               
               (forward-line 1))))))))
                   
+
+(defun mu4e-headers-toggle-at-point ()
+  "Toggle visibility of the thread at point"
+
+  (interactive)
+  (if (get-buffer "*mu4e-headers*")
+      (with-current-buffer "*mu4e-headers*"
+        (save-excursion
+          (while (not (bobp))
+            (let ((child-overlay (mu4e-headers-get-overlay 'thread-child))
+                  (root-overlay  (mu4e-headers-get-overlay 'thread-root)))
+
+              ;; We found the root node
+              (when root-overlay
+                (let ((id     (overlay-get root-overlay 'thread-id))
+                      (folded (overlay-get root-overlay 'folded)))
+                  (mu4e-headers-overlay-set-visibility (not folded) id)
+                  (goto-char (point-min))))
+                
+              ;; Not a thread, we exit the loop
+              (if (and (not child-overlay) (not root-overlay))
+                  (goto-char (point-min)))
+
+              ;; We go up until we find the root node
+              (forward-line -1)))))))
 
 (defun mu4e-headers-fold-all ()
   "Fold all threads"
@@ -284,5 +311,6 @@ Unread message are not folded."
 (define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
 (define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
 (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+(define-key mu4e-headers-mode-map (kbd "<tab>") 'mu4e-headers-toggle-at-point)
 
 (provide 'mu4e-thread-folding)
