@@ -44,6 +44,10 @@
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
+(defcustom mu4e-thread-folding-default-view 'folded
+  "Initial folding status ('folded or 'unfolded)."
+  :type 'string
+  :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-unfolded-prefix-string
   "▼ "
@@ -118,6 +122,7 @@ This uses the mu4e private API and this might break in future releases."
         (remove-overlays (point-min) (point-max))
         
         (let ((overlay-priority     -60) 
+              (folded               (if (string= mu4e-thread-folding-default-view 'folded) t nil))
               
               (child-overlay        nil)
               (child-prefix-overlay nil)
@@ -160,21 +165,23 @@ This uses the mu4e private API and this might break in future releases."
                      (setq root-unread-child (or root-unread-child unread))
                      ;; Child
                      (overlay-put child-overlay 'face child-face)
-                     (if (not unread)
-                         (overlay-put child-overlay 'invisible t))
+                     (if (and folded (not unread))
+                         (overlay-put child-overlay 'invisible t)
+                       (overlay-put child-overlay 'invisible nil))
+                     
                      (overlay-put child-overlay 'priority  overlay-priority)
                      (overlay-put child-overlay 'unread unread)
                      (overlay-put child-overlay 'thread-child t)
                      (overlay-put child-overlay 'thread-id id)
                      (overlay-put child-prefix-overlay 'display child-prefix)
                      ;; Root
-                     (if root-unread-child
+                     (if (or root-unread-child (not folded))
                          (overlay-put root-overlay 'face root-unfolded-face)
                        (overlay-put root-overlay 'face root-folded-face))
                      (overlay-put root-overlay 'priority overlay-priority)
                      (overlay-put root-overlay 'thread-root t)
                      (overlay-put root-overlay 'thread-id id)
-                     (overlay-put root-overlay 'folded t)
+                     (overlay-put root-overlay 'folded folded)
                      (overlay-put root-prefix-overlay 'display root-folded-prefix))
                  
                  ;; Else, set the new root (this relies on default message order in header's view)
