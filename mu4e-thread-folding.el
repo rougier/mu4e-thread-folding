@@ -345,7 +345,7 @@ Unread message are not folded."
 (define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
 (define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
 (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
-(define-key mu4e-headers-mode-map (kbd "<tab>") 'mu4e-headers-toggle-at-point)
+(define-key mu4e-headers-mode-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
 
 (provide 'mu4e-thread-folding)
 ;;; mu4e-thread-folding.el ends here
