@@ -185,7 +185,7 @@ This uses the mu4e private API and this might break in future releases."
                                    (+ 0 (line-beginning-position))
                                    (+ 1 (line-end-position)))))
                
-               ;; We mark the root thread if and only if there'a child               
+               ;; We mark the root thread if and only if there's child
                (if (string= root-id id)
                    (progn
                      ;; unread-child indicates that there's at least one unread child
