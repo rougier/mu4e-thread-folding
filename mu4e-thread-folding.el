@@ -56,7 +56,8 @@
 (require 'color)
 
 (defgroup mu4e-thread-folding '()
-  "Group for mu4e thread folding options")
+  "Group for mu4e thread folding options"
+  :group 'mu4e)
 
 (defface mu4e-thread-folding-root-unfolded-face nil
   "Face for the root node thread when it is unfolded."
