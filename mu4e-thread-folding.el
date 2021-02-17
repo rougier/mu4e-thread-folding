@@ -151,8 +151,8 @@ This uses the mu4e private API and this might break in future releases."
         (let ((overlay-priority     -60) 
               (folded               (if (string= mu4e-thread-folding-default-view 'folded) t nil))
               
-              (child-overlay        nil)
-              (child-prefix-overlay nil)
+              (_child-overlay        nil)
+              (_child-prefix-overlay nil)
               (child-face           'mu4e-thread-folding-child-face)
               (child-prefix-beg     (car mu4e-thread-folding-child-prefix-position))
               (child-prefix-end     (cdr mu4e-thread-folding-child-prefix-position))
@@ -167,7 +167,7 @@ This uses the mu4e private API and this might break in future releases."
               (root-prefix-beg      (car mu4e-thread-folding-root-prefix-position))
               (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
               (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
-              (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
+              (_root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
           
           ;; Iterate over each header
           (mu4e-headers-for-each
