@@ -59,15 +59,29 @@
   "Group for mu4e thread folding options"
   :group 'mu4e)
 
-(defface mu4e-thread-folding-root-unfolded-face nil
+(defface mu4e-thread-folding-root-unfolded-face
+  '((t :extend t
+       :overline nil
+       :underline nil
+       :foreground nil
+       :background "#DCE6F9"))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
-(defface mu4e-thread-folding-root-folded-face nil
+(defface mu4e-thread-folding-root-folded-face
+  '((t :inherit nil
+       :overline nil
+       :underline nil
+       :foreground nil
+       :background nil))
   "Face for the root node of a thread when it is folded."
   :group 'mu4e-thread-folding)
 
-(defface mu4e-thread-folding-child-face nil
+(defface mu4e-thread-folding-child-face
+  '((t :extend t
+       :underline nil
+       :foreground nil
+       :background "#EEF3FC"))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
@@ -107,29 +121,6 @@
   "Prefix position (columns) of a child node. 9 correspond to the first displayed columns."
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
-
-
-(set-face-attribute 'mu4e-thread-folding-root-unfolded-face nil
-                    :extend t
-                    :overline nil
-                    :underline nil ;; (if (display-graphic-p) "white" nil)
-                    :foreground nil
-                    :background "#DCE6F9")
-
-(set-face-attribute 'mu4e-thread-folding-root-folded-face nil
-                    :inherit nil
-                    :overline nil
-                    :underline nil
-                    :foreground nil
-                    :background nil)
-
-(set-face-attribute 'mu4e-thread-folding-child-face nil
-                    :extend t
-                    :underline nil ;; (if (display-graphic-p) "white" nil)
-                    :foreground nil
-                    :background "#EEF3FC")
-
-
 
 
 (defun mu4e-headers-get-thread-id (msg)
