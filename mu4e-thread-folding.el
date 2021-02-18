@@ -341,5 +341,18 @@ Unread message are not folded."
 (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
 (define-key mu4e-headers-mode-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
 
+(defun mu4e-thread-folding-unload-function ()
+  "Handler for `unload-feature'."
+  (condition-case err
+      (progn
+        (remove-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
+        (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
+        ;; Return nil if unloading was successful.  Refer to `unload-feature'.
+        nil)
+    ;; If any error occurred, return non-nil.
+    (error (progn
+             (message "Error unloading mu4e-thread-folding: %S %S" (car err) (cdr err))
+             t))))
+
 (provide 'mu4e-thread-folding)
 ;;; mu4e-thread-folding.el ends here
