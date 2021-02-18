@@ -56,7 +56,8 @@
 (require 'color)
 
 (defgroup mu4e-thread-folding '()
-  "Group for mu4e thread folding options")
+  "Group for mu4e thread folding options"
+  :group 'mu4e)
 
 (defface mu4e-thread-folding-root-unfolded-face nil
   "Face for the root node thread when it is unfolded."
@@ -78,7 +79,7 @@
 (defcustom mu4e-thread-folding-root-unfolded-prefix-string
   "▼ "
   ;; "▿ "
-  ;; (svg-icon "material" "chevron-down"  nano-color-salient "#DCE6F9")
+  ;; (svg-icon "material" "chevron-down" nano-color-salient "#DCE6F9")
   "Prefix for the root node thread when it is unfolded."
   :type 'string
   :group 'mu4e-thread-folding)
@@ -91,8 +92,8 @@
   :type 'string
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-child-prefix-string  "  "
-  ;; (svg-icon "material" "chevron-right"  nano-color-salient)
+(defcustom mu4e-thread-folding-child-prefix-string "  "
+  ;; (svg-icon "material" "chevron-right" nano-color-salient)
   "Prefix for a child node."
   :type 'string
   :group 'mu4e-thread-folding)
@@ -139,24 +140,24 @@ This uses the mu4e private API and this might break in future releases."
 
 (defun mu4e-headers-mark-threads ()
   "Mark line in headers view with various information contained in overlays."
-  
+
   (interactive)
   (if (get-buffer "*mu4e-headers*")
       (with-current-buffer "*mu4e-headers*"
 
         ;; Remove all overlays
         (remove-overlays (point-min) (point-max))
-        
-        (let ((overlay-priority     -60) 
+
+        (let ((overlay-priority     -60)
               (folded               (if (string= mu4e-thread-folding-default-view 'folded) t nil))
-              
-              (child-overlay        nil)
-              (child-prefix-overlay nil)
+
+              (_child-overlay        nil)
+              (_child-prefix-overlay nil)
               (child-face           'mu4e-thread-folding-child-face)
               (child-prefix-beg     (car mu4e-thread-folding-child-prefix-position))
               (child-prefix-end     (cdr mu4e-thread-folding-child-prefix-position))
               (child-prefix         'mu4e-thread-folding-child-prefix-string)
-              
+
               (root-id              nil)
               (root-overlay         nil)
               (root-prefix-overlay  nil)
@@ -166,8 +167,8 @@ This uses the mu4e private API and this might break in future releases."
               (root-prefix-beg      (car mu4e-thread-folding-root-prefix-position))
               (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
               (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
-              (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
-          
+              (_root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
+
           ;; Iterate over each header
           (mu4e-headers-for-each
            (lambda (msg)
@@ -180,11 +181,11 @@ This uses the mu4e private API and this might break in future releases."
                                           (+ child-prefix-end (line-beginning-position))))
 
                    ;; Overlay for child (whole line)
-                   (child-overlay  (make-overlay
-                                    (+ 0 (line-beginning-position))
-                                    (+ 1 (line-end-position)))))
-               
-               ;; We mark the root thread if and only if there'a child               
+                   (child-overlay (make-overlay
+                                   (+ 0 (line-beginning-position))
+                                   (+ 1 (line-end-position)))))
+
+               ;; We mark the root thread if and only if there's child
                (if (string= root-id id)
                    (progn
                      ;; unread-child indicates that there's at least one unread child
@@ -194,8 +195,8 @@ This uses the mu4e private API and this might break in future releases."
                      (if (and folded (not unread))
                          (overlay-put child-overlay 'invisible t)
                        (overlay-put child-overlay 'invisible nil))
-                     
-                     (overlay-put child-overlay 'priority  overlay-priority)
+
+                     (overlay-put child-overlay 'priority overlay-priority)
                      (overlay-put child-overlay 'unread unread)
                      (overlay-put child-overlay 'thread-child t)
                      (overlay-put child-overlay 'thread-id id)
@@ -209,7 +210,7 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put root-overlay 'thread-id id)
                      (overlay-put root-overlay 'folded folded)
                      (overlay-put root-prefix-overlay 'display root-folded-prefix))
-                 
+
                  ;; Else, set the new root (this relies on default message order in header's view)
                  (progn
                    (setq root-id id
@@ -217,16 +218,16 @@ This uses the mu4e private API and this might break in future releases."
                          root-overlay (make-overlay
                                        (+ 0 (line-beginning-position))
                                        (+ 1 (line-end-position)))
-                         root-prefix-overlay  (make-overlay
-                                               (+ root-prefix-beg (line-beginning-position))
-                                               (+ root-prefix-end (line-beginning-position)))))))))))))
+                         root-prefix-overlay (make-overlay
+                                              (+ root-prefix-beg (line-beginning-position))
+                                              (+ root-prefix-end (line-beginning-position)))))))))))))
 
 
 (defun mu4e-headers-get-overlay (prop &optional index)
   "Get overlay at point having the PROP property"
   (let* ((index (or index 0))
-        (overlays (overlays-at (+ (point) index)))
-        found)
+         (overlays (overlays-at (+ (point) index)))
+         found)
     (while (and overlays (not found))
       (let ((overlay (car overlays)))
         (if (overlay-get overlay prop)
@@ -238,7 +239,7 @@ This uses the mu4e private API and this might break in future releases."
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
 Unread message are not folded."
-  
+
   (interactive)
   (if (get-buffer "*mu4e-headers*")
       (with-current-buffer "*mu4e-headers*"
@@ -256,35 +257,35 @@ Unread message are not folded."
               (let ((local-child-overlay (mu4e-headers-get-overlay 'thread-child))
                     (local-root-overlay  (mu4e-headers-get-overlay 'thread-root)))
 
-              ;; Child header
-              (if local-child-overlay
-                (let ((id     (overlay-get local-child-overlay 'thread-id))
-                      (unread (overlay-get local-child-overlay 'unread)))
-                  (setq child-overlay local-child-overlay) 
-                   (if (or (not thread-id) (string= id thread-id))
-                      (if unread
-                          (if root-overlay (overlay-put root-overlay 'face root-unfolded-face))
-                        (overlay-put child-overlay 'invisible value)))))
+                ;; Child header
+                (if local-child-overlay
+                    (let ((id     (overlay-get local-child-overlay 'thread-id))
+                          (unread (overlay-get local-child-overlay 'unread)))
+                      (setq child-overlay local-child-overlay)
+                      (if (or (not thread-id) (string= id thread-id))
+                          (if unread
+                              (if root-overlay (overlay-put root-overlay 'face root-unfolded-face))
+                            (overlay-put child-overlay 'invisible value)))))
 
-              ;; Root header
-              (if local-root-overlay
-                (let ((id                  (overlay-get local-root-overlay 'thread-id))
-                      (root-prefix-overlay (mu4e-headers-get-overlay 'display root-prefix-beg)))
-                  (setq root-overlay local-root-overlay)
-                  (when (or (not thread-id) (string= id thread-id))
-                    (overlay-put root-overlay 'folded value)
-                    (if value
-                        (progn (overlay-put root-prefix-overlay 'display root-folded-prefix)
-                               (overlay-put root-overlay 'face root-folded-face))
-                      (progn (overlay-put root-prefix-overlay 'display root-unfolded-prefix)
-                             (overlay-put root-overlay 'face root-unfolded-face))))))
+                ;; Root header
+                (if local-root-overlay
+                    (let ((id                  (overlay-get local-root-overlay 'thread-id))
+                          (root-prefix-overlay (mu4e-headers-get-overlay 'display root-prefix-beg)))
+                      (setq root-overlay local-root-overlay)
+                      (when (or (not thread-id) (string= id thread-id))
+                        (overlay-put root-overlay 'folded value)
+                        (if value
+                            (progn (overlay-put root-prefix-overlay 'display root-folded-prefix)
+                                   (overlay-put root-overlay 'face root-folded-face))
+                          (progn (overlay-put root-prefix-overlay 'display root-unfolded-prefix)
+                                 (overlay-put root-overlay 'face root-unfolded-face))))))
 
-              ;; Not a root, not a child, we reset the root overlay
-              (if (and (not local-child-overlay) (not local-root-overlay))
-                  (setq root-overlay nil))
-              
-              (forward-line 1))))))))
-                  
+                ;; Not a root, not a child, we reset the root overlay
+                (if (and (not local-child-overlay) (not local-root-overlay))
+                    (setq root-overlay nil))
+
+                (forward-line 1))))))))
+
 
 (defun mu4e-headers-toggle-at-point ()
   "Toggle visibility of the thread at point"
@@ -303,7 +304,7 @@ Unread message are not folded."
                       (folded (overlay-get root-overlay 'folded)))
                   (mu4e-headers-overlay-set-visibility (not folded) id)
                   (goto-char (point-min))))
-                
+
               ;; Not a thread, we exit the loop
               (if (and (not child-overlay) (not root-overlay))
                   (goto-char (point-min)))
@@ -320,7 +321,7 @@ Unread message are not folded."
   "Unfold all threads"
   (interactive)
   (mu4e-headers-overlay-set-visibility nil))
-  
+
 (defun mu4e-headers-fold-at-point ()
   "Fold current thread at point"
   (interactive)
@@ -337,14 +338,14 @@ Unread message are not folded."
         (let ((overlay (mu4e-headers-get-overlay 'thread-id)))
           (mu4e-headers-overlay-set-visibility nil (overlay-get overlay 'thread-id))))))
 
-;; Install hooks and  keybindings
+;; Install hooks and keybindings
 (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
 (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
 (define-key mu4e-headers-mode-map (kbd "<left>") 'mu4e-headers-fold-at-point)
 (define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
 (define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
 (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
-(define-key mu4e-headers-mode-map (kbd "<tab>") 'mu4e-headers-toggle-at-point)
+(define-key mu4e-headers-mode-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
 
 (provide 'mu4e-thread-folding)
 ;;; mu4e-thread-folding.el ends here
