@@ -135,7 +135,8 @@ This uses the mu4e private API and this might break in future releases."
   (interactive)
   (if (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
       (with-current-buffer "*mu4e-headers*"
-
+        ;; turn on minor mode for key bindings
+        (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
         ;; Remove all overlays
         (remove-overlays (point-min) (point-max))
 
@@ -332,14 +333,35 @@ Unread message are not folded."
         (let ((overlay (mu4e-headers-get-overlay 'thread-id)))
           (mu4e-headers-overlay-set-visibility nil (overlay-get overlay 'thread-id))))))
 
+(defvar mu4e-thread-folding-map
+  (make-sparse-keymap))
+
+(define-key mu4e-thread-folding-map (kbd "<left>") 'mu4e-headers-fold-at-point)
+(define-key mu4e-thread-folding-map (kbd "<S-left>") 'mu4e-headers-fold-all)
+(define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
+(define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+(define-key mu4e-thread-folding-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+
+(define-minor-mode mu4e-thread-folding-mode
+  "Minor mode for folding threads in mu4e-headers view."
+  ;; The initial value - Set to 1 to enable by default
+  nil
+  ;; The indicator for the mode line.
+  " Threads"
+  ;; The minor mode keymap
+  mu4e-thread-folding-map
+  ;; Make mode global rather than buffer local
+  :global nil
+  ;; customization group
+  :group 'mu4e-thread-folding)
+
 ;; Install hooks and keybindings
-(add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-(add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
-(define-key mu4e-headers-mode-map (kbd "<left>") 'mu4e-headers-fold-at-point)
-(define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
-(define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
-(define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
-(define-key mu4e-headers-mode-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+(defun mu4e-thread-folding-load ()
+  "Install hooks."
+  (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
+  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
+
+(mu4e-thread-folding-load)
 
 (defun mu4e-thread-folding-unload-function ()
   "Handler for `unload-feature'."
