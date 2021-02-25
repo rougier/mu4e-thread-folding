@@ -122,6 +122,8 @@
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
 
+(defvar mu4e-thread-folding-all-folded t
+  "Record whether last fold-all state was folded.")
 
 (defun mu4e-headers-get-thread-id (msg)
   "Retrieve the thread-id of a msg.
@@ -158,6 +160,9 @@ This uses the mu4e private API and this might break in future releases."
               (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
               (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
               (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
+
+          ;; store initial folded state
+          (setq mu4e-thread-folding-all-folded folded)
 
           ;; Iterate over each header
           (mu4e-headers-for-each
@@ -230,14 +235,15 @@ This uses the mu4e private API and this might break in future releases."
       (setq overlays (cdr overlays)))
     found))
 
-
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
 Unread message are not folded."
 
   (interactive)
-  (if (get-buffer "*mu4e-headers*")
+  (if (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
       (with-current-buffer "*mu4e-headers*"
+        (unless thread-id
+          (setq mu4e-thread-folding-all-folded (not value)))
         (save-excursion
           (goto-char (point-min))
           (let ((root-overlay  nil)
@@ -306,6 +312,11 @@ Unread message are not folded."
 
               ;; We go up until we find the root node
               (forward-line -1)))))))
+
+(defun mu4e-headers-toggle-fold-all ()
+  "Toggle between all threads unfolded and all threads folded."
+  (interactive)
+  (mu4e-headers-overlay-set-visibility mu4e-thread-folding-all-folded))
 
 (defun mu4e-headers-fold-all ()
   "Fold all threads"
