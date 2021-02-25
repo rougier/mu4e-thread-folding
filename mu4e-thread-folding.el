@@ -352,6 +352,7 @@ Unread message are not folded."
 (define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
 (define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
 (define-key mu4e-thread-folding-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+(define-key mu4e-thread-folding-map (kbd "S-<tab>") 'mu4e-headers-toggle-fold-all)
 
 (define-minor-mode mu4e-thread-folding-mode
   "Minor mode for folding threads in mu4e-headers view."
