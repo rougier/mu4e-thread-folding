@@ -133,7 +133,7 @@ This uses the mu4e private API and this might break in future releases."
   "Mark line in headers view with various information contained in overlays."
 
   (interactive)
-  (if (get-buffer "*mu4e-headers*")
+  (if (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
       (with-current-buffer "*mu4e-headers*"
 
         ;; Remove all overlays
@@ -193,7 +193,7 @@ This uses the mu4e private API and this might break in future releases."
 
                      ;; Root
                      (if (or root-unread-child (not folded))
-                         (progn 
+                         (progn
                            (overlay-put root-overlay 'face root-unfolded-face)
                            (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
                        (progn
