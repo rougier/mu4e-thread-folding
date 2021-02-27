@@ -122,6 +122,8 @@
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
 
+(defvar mu4e-thread-folding-all-folded t
+  "Record whether last fold-all state was folded.")
 
 (defun mu4e-headers-get-thread-id (msg)
   "Retrieve the thread-id of a msg.
@@ -133,9 +135,10 @@ This uses the mu4e private API and this might break in future releases."
   "Mark line in headers view with various information contained in overlays."
 
   (interactive)
-  (if (get-buffer "*mu4e-headers*")
+  (if (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
       (with-current-buffer "*mu4e-headers*"
-
+        ;; turn on minor mode for key bindings
+        (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
         ;; Remove all overlays
         (remove-overlays (point-min) (point-max))
 
@@ -157,6 +160,9 @@ This uses the mu4e private API and this might break in future releases."
               (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
               (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
               (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
+
+          ;; store initial folded state
+          (setq mu4e-thread-folding-all-folded folded)
 
           ;; Iterate over each header
           (mu4e-headers-for-each
@@ -193,7 +199,7 @@ This uses the mu4e private API and this might break in future releases."
 
                      ;; Root
                      (if (or root-unread-child (not folded))
-                         (progn 
+                         (progn
                            (overlay-put root-overlay 'face root-unfolded-face)
                            (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
                        (progn
@@ -229,14 +235,15 @@ This uses the mu4e private API and this might break in future releases."
       (setq overlays (cdr overlays)))
     found))
 
-
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
 Unread message are not folded."
 
   (interactive)
-  (if (get-buffer "*mu4e-headers*")
+  (if (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
       (with-current-buffer "*mu4e-headers*"
+        (unless thread-id
+          (setq mu4e-thread-folding-all-folded (not value)))
         (save-excursion
           (goto-char (point-min))
           (let ((root-overlay  nil)
@@ -306,6 +313,11 @@ Unread message are not folded."
               ;; We go up until we find the root node
               (forward-line -1)))))))
 
+(defun mu4e-headers-toggle-fold-all ()
+  "Toggle between all threads unfolded and all threads folded."
+  (interactive)
+  (mu4e-headers-overlay-set-visibility mu4e-thread-folding-all-folded))
+
 (defun mu4e-headers-fold-all ()
   "Fold all threads"
   (interactive)
@@ -332,14 +344,36 @@ Unread message are not folded."
         (let ((overlay (mu4e-headers-get-overlay 'thread-id)))
           (mu4e-headers-overlay-set-visibility nil (overlay-get overlay 'thread-id))))))
 
+(defvar mu4e-thread-folding-map
+  (make-sparse-keymap))
+
+(define-key mu4e-thread-folding-map (kbd "<left>") 'mu4e-headers-fold-at-point)
+(define-key mu4e-thread-folding-map (kbd "<S-left>") 'mu4e-headers-fold-all)
+(define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
+(define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+(define-key mu4e-thread-folding-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+(define-key mu4e-thread-folding-map (kbd "S-<tab>") 'mu4e-headers-toggle-fold-all)
+
+(define-minor-mode mu4e-thread-folding-mode
+  "Minor mode for folding threads in mu4e-headers view."
+  ;; The initial value - Set to 1 to enable by default
+  nil
+  ;; The indicator for the mode line.
+  " Threads"
+  ;; The minor mode keymap
+  mu4e-thread-folding-map
+  ;; Make mode global rather than buffer local
+  :global nil
+  ;; customization group
+  :group 'mu4e-thread-folding)
+
 ;; Install hooks and keybindings
-(add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-(add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
-(define-key mu4e-headers-mode-map (kbd "<left>") 'mu4e-headers-fold-at-point)
-(define-key mu4e-headers-mode-map (kbd "<S-left>") 'mu4e-headers-fold-all)
-(define-key mu4e-headers-mode-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
-(define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
-(define-key mu4e-headers-mode-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+(defun mu4e-thread-folding-load ()
+  "Install hooks."
+  (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
+  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
+
+(mu4e-thread-folding-load)
 
 (defun mu4e-thread-folding-unload-function ()
   "Handler for `unload-feature'."
