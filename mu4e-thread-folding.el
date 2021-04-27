@@ -318,23 +318,28 @@ Unread message are not folded."
   (if (get-buffer "*mu4e-headers*")
       (with-current-buffer "*mu4e-headers*"
         (save-excursion
-          (while (not (bobp))
-            (let ((child-overlay (mu4e-headers-get-overlay 'thread-child))
-                  (root-overlay  (mu4e-headers-get-overlay 'thread-root)))
+          (let ((keep-searching t))
+            (while keep-searching
+              (if (bobp)
+                  ;; We reached the top. This is the last iteration.
+                  (setq keep-searching nil))
 
-              ;; We found the root node
-              (when root-overlay
-                (let ((id     (overlay-get root-overlay 'thread-id))
-                      (folded (overlay-get root-overlay 'folded)))
-                  (mu4e-headers-overlay-set-visibility (not folded) id)
-                  (goto-char (point-min))))
+              (let ((child-overlay (mu4e-headers-get-overlay 'thread-child))
+                    (root-overlay  (mu4e-headers-get-overlay 'thread-root)))
 
-              ;; Not a thread, we exit the loop
-              (if (and (not child-overlay) (not root-overlay))
-                  (goto-char (point-min)))
+                ;; We found the root node
+                (when root-overlay
+                  (let ((id     (overlay-get root-overlay 'thread-id))
+                        (folded (overlay-get root-overlay 'folded)))
+                    (mu4e-headers-overlay-set-visibility (not folded) id)
+                    (setq keep-searching nil)))
 
-              ;; We go up until we find the root node
-              (forward-line -1)))))))
+                ;; Not a thread, we exit the loop
+                (if (and (not child-overlay) (not root-overlay))
+                    (setq keep-searching nil))
+
+                ;; We go up until we find the root node
+                (forward-line -1))))))))
 
 (defun mu4e-headers-toggle-fold-all ()
   "Toggle between all threads unfolded and all threads folded."
