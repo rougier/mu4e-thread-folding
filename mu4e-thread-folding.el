@@ -55,16 +55,31 @@
 (require 'mu4e)
 (require 'color)
 
+(defun color-darken (hexcolor percent) 
+  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
+               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
+               (`(,H ,S ,L) (color-darken-hsl H S L percent))
+               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
+    (color-rgb-to-hex R G B 2)))
+(defun color-lighten (hexcolor percent) 
+  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
+               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
+               (`(,H ,S ,L) (color-lighten-hsl H S L percent))
+               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
+    (color-rgb-to-hex R G B 2)))
+
+(color-darken nano-color-background 5)
+
 (defgroup mu4e-thread-folding '()
   "Group for mu4e thread folding options"
   :group 'mu4e)
 
 (defface mu4e-thread-folding-root-unfolded-face
-  '((t :extend t
-       :overline nil
+  `((t :extend t
+       :overline nil ;; ,(color-darken nano-color-background 10)
        :underline nil
        :foreground nil
-       :background "#DCE6F9"))
+       :background ,(color-darken nano-color-background 0)))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
@@ -78,36 +93,33 @@
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-child-face
-  '((t :extend t
+  `((t :extend t
+       :overline nil
        :underline nil
        :foreground nil
-       :background "#EEF3FC"))
+       :background ,(color-darken nano-color-background 0)))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-default-view 'folded
+(defcustom mu4e-thread-folding-default-view 'unfolded
   "Initial folding status ('folded or 'unfolded)."
   :type 'string
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-unfolded-prefix-string
-  "▼ "
-  ;; "▿ "
-  ;; (svg-icon "material" "chevron-down" nano-color-salient "#DCE6F9")
+  "▾ "
   "Prefix for the root node thread when it is unfolded."
   :type 'string
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-folded-prefix-string
-  "► "
-  ;; "▸ "
-  ;; (svg-icon "material" "chevron-right" nano-color-salient)
+  "▸ "
   "Prefix for the root node (when folded)"
   :type 'string
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-child-prefix-string "  "
-  ;; (svg-icon "material" "chevron-right" nano-color-salient)
+(defcustom mu4e-thread-folding-child-prefix-string
+  "  "
   "Prefix for a child node."
   :type 'string
   :group 'mu4e-thread-folding)
@@ -180,6 +192,9 @@ This uses the mu4e private API and this might break in future releases."
                                    (+ 0 (line-beginning-position))
                                    (+ 1 (line-end-position)))))
 
+               ;; test
+               ;; (overlay-put child-overlay 'before-string  (propertize "\n" 'face '(:height 0.5)))
+
                ;; We mark the root thread if and only if there's child
                (if (string= root-id id)
                    (progn
@@ -196,7 +211,9 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put child-overlay 'thread-child t)
                      (overlay-put child-overlay 'thread-id id)
                      (overlay-put child-prefix-overlay 'display child-prefix)
-
+                     ;; test
+                     ;; (overlay-put child-overlay 'before-string "")
+                     
                      ;; Root
                      (if (or root-unread-child (not folded))
                          (progn
@@ -204,8 +221,14 @@ This uses the mu4e private API and this might break in future releases."
                            (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
                        (progn
                          (overlay-put root-overlay 'face root-folded-face)
-                         (overlay-put root-prefix-overlay 'display root-folded-prefix)))
+                         (overlay-put root-prefix-overlay 'display root-folded-prefix)
+                         ;; test
+                         ;; (overlay-put root-overlay 'before-string  (propertize "\n" 'face '(:height 0.5)))
+                         ))
                      (overlay-put root-overlay 'priority overlay-priority)
+                     ;; test
+                     ;; (overlay-put root-overlay 'before-string
+                     ;;             (propertize "\n" 'face '(:height 0.5)))
                      (overlay-put root-overlay 'thread-root t)
                      (overlay-put root-overlay 'thread-id id)
                      (overlay-put root-overlay 'folded folded))
@@ -347,10 +370,10 @@ Unread message are not folded."
 (defvar mu4e-thread-folding-map
   (make-sparse-keymap))
 
-(define-key mu4e-thread-folding-map (kbd "<left>") 'mu4e-headers-fold-at-point)
-(define-key mu4e-thread-folding-map (kbd "<S-left>") 'mu4e-headers-fold-all)
-(define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
-(define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+;; (define-key mu4e-thread-folding-map (kbd "<left>") 'mu4e-headers-fold-at-point)
+;; (define-key mu4e-thread-folding-map (kbd "<S-left>") 'mu4e-headers-fold-all)
+;; (define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
+;; (define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
 (define-key mu4e-thread-folding-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
 (define-key mu4e-thread-folding-map (kbd "S-<tab>") 'mu4e-headers-toggle-fold-all)
 
