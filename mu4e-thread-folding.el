@@ -192,9 +192,6 @@ This uses the mu4e private API and this might break in future releases."
                                    (+ 0 (line-beginning-position))
                                    (+ 1 (line-end-position)))))
 
-               ;; test
-               ;; (overlay-put child-overlay 'before-string  (propertize "\n" 'face '(:height 0.5)))
-
                ;; We mark the root thread if and only if there's child
                (if (string= root-id id)
                    (progn
@@ -211,8 +208,6 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put child-overlay 'thread-child t)
                      (overlay-put child-overlay 'thread-id id)
                      (overlay-put child-prefix-overlay 'display child-prefix)
-                     ;; test
-                     ;; (overlay-put child-overlay 'before-string "")
                      
                      ;; Root
                      (if (or root-unread-child (not folded))
@@ -221,18 +216,11 @@ This uses the mu4e private API and this might break in future releases."
                            (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
                        (progn
                          (overlay-put root-overlay 'face root-folded-face)
-                         (overlay-put root-prefix-overlay 'display root-folded-prefix)
-                         ;; test
-                         ;; (overlay-put root-overlay 'before-string  (propertize "\n" 'face '(:height 0.5)))
-                         ))
+                         (overlay-put root-prefix-overlay 'display root-folded-prefix)))
                      (overlay-put root-overlay 'priority overlay-priority)
-                     ;; test
-                     ;; (overlay-put root-overlay 'before-string
-                     ;;             (propertize "\n" 'face '(:height 0.5)))
                      (overlay-put root-overlay 'thread-root t)
                      (overlay-put root-overlay 'thread-id id)
                      (overlay-put root-overlay 'folded folded))
-
 
                  ;; Else, set the new root (this relies on default message order in header's view)
                  (progn
