@@ -124,12 +124,12 @@
   :type 'string
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-root-prefix-position '(9 . 11)
+(defcustom mu4e-thread-folding-root-prefix-position '(0 . 2)
   "Prefix position (columns) of a root node. 9 correspond to the first displayed columns."
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-child-prefix-position '(9 . 11)
+(defcustom mu4e-thread-folding-child-prefix-position '(0 . 2)
   "Prefix position (columns) of a child node. 9 correspond to the first displayed columns."
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
@@ -179,13 +179,19 @@ This uses the mu4e private API and this might break in future releases."
           ;; Iterate over each header
           (mu4e-headers-for-each
            (lambda (msg)
-             (let ((id     (mu4e-headers-get-thread-id msg))
-                   (unread (member 'unread (mu4e-message-field msg :flags)))
+             (let* ((id     (mu4e-headers-get-thread-id msg))
+
+                    ;; Warning: might break in the future
+                    (docid (mu4e-message-field msg :docid))
+                    (prefix-start (+ (length mu4e~mark-fringe)
+                                     (mu4e~headers-goto-docid docid t)))
+                    
+                    (unread (member 'unread (mu4e-message-field msg :flags)))
 
                    ;; Overlay for child (prefix)
                    (child-prefix-overlay (make-overlay
-                                          (+ child-prefix-beg (line-beginning-position))
-                                          (+ child-prefix-end (line-beginning-position))))
+                                          (+ prefix-start child-prefix-beg)
+                                          (+ prefix-start child-prefix-end)))
 
                    ;; Overlay for child (whole line)
                    (child-overlay (make-overlay
@@ -230,8 +236,8 @@ This uses the mu4e private API and this might break in future releases."
                                        (+ 0 (line-beginning-position))
                                        (+ 1 (line-end-position)))
                          root-prefix-overlay (make-overlay
-                                              (+ root-prefix-beg (line-beginning-position))
-                                              (+ root-prefix-end (line-beginning-position)))))))))))))
+                                              (+ prefix-start root-prefix-beg)
+                                              (+ prefix-start root-prefix-end))))))))))))
 
 
 (defun mu4e-headers-get-overlay (prop &optional index)
