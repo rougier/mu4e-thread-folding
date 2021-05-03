@@ -55,31 +55,33 @@
 (require 'mu4e)
 (require 'color)
 
-(defun color-darken (hexcolor percent) 
+(defun color-darken (hexcolor percent)
   (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
                (`(,H ,S ,L) (color-rgb-to-hsl R G B))
                (`(,H ,S ,L) (color-darken-hsl H S L percent))
                (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
     (color-rgb-to-hex R G B 2)))
-(defun color-lighten (hexcolor percent) 
+(defun color-lighten (hexcolor percent)
   (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
                (`(,H ,S ,L) (color-rgb-to-hsl R G B))
                (`(,H ,S ,L) (color-lighten-hsl H S L percent))
                (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
     (color-rgb-to-hex R G B 2)))
 
-(color-darken nano-color-background 5)
 
 (defgroup mu4e-thread-folding '()
   "Group for mu4e thread folding options"
   :group 'mu4e)
+
+
 
 (defface mu4e-thread-folding-root-unfolded-face
   `((t :extend t
        :overline nil ;; ,(color-darken nano-color-background 10)
        :underline nil
        :foreground nil
-       :background ,(color-darken nano-color-background 0)))
+       :background ,(color-darken
+                     (face-attribute 'default :background) 3)))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
@@ -97,7 +99,8 @@
        :overline nil
        :underline nil
        :foreground nil
-       :background ,(color-darken nano-color-background 0)))
+       :background ,(color-lighten
+                     (face-attribute 'default :background) 5)))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
@@ -214,7 +217,7 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put child-overlay 'thread-child t)
                      (overlay-put child-overlay 'thread-id id)
                      (overlay-put child-prefix-overlay 'display child-prefix)
-                     
+
                      ;; Root
                      (if (or root-unread-child (not folded))
                          (progn
