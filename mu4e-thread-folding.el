@@ -125,12 +125,12 @@
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-prefix-position '(0 . 2)
-  "Prefix position (columns) of a root node. 9 correspond to the first displayed columns."
+  "Prefix position (columns) of a root node. 0 correspond to the first displayed columns."
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-child-prefix-position '(0 . 2)
-  "Prefix position (columns) of a child node. 9 correspond to the first displayed columns."
+  "Prefix position (columns) of a child node. 0 correspond to the first displayed columns."
   :type '(cons integer integer)
   :group 'mu4e-thread-folding)
 
@@ -185,7 +185,7 @@ This uses the mu4e private API and this might break in future releases."
                     (docid (mu4e-message-field msg :docid))
                     (prefix-start (+ (length mu4e~mark-fringe)
                                      (mu4e~headers-goto-docid docid t)))
-                    
+
                     (unread (member 'unread (mu4e-message-field msg :flags)))
 
                    ;; Overlay for child (prefix)
@@ -225,6 +225,7 @@ This uses the mu4e private API and this might break in future releases."
                          (overlay-put root-prefix-overlay 'display root-folded-prefix)))
                      (overlay-put root-overlay 'priority overlay-priority)
                      (overlay-put root-overlay 'thread-root t)
+                     (overlay-put root-overlay 'prefix-overlay root-prefix-overlay)
                      (overlay-put root-overlay 'thread-id id)
                      (overlay-put root-overlay 'folded folded))
 
@@ -287,8 +288,8 @@ Unread message are not folded."
 
                 ;; Root header
                 (if local-root-overlay
-                    (let ((id                  (overlay-get local-root-overlay 'thread-id))
-                          (root-prefix-overlay (mu4e-headers-get-overlay 'display root-prefix-beg)))
+                    (let* ((id                  (overlay-get local-root-overlay 'thread-id))
+                           (root-prefix-overlay (overlay-get local-root-overlay 'prefix-overlay)))
                       (setq root-overlay local-root-overlay)
                       (when (or (not thread-id) (string= id thread-id))
                         (overlay-put root-overlay 'folded value)
