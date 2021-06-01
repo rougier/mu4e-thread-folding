@@ -311,33 +311,30 @@ Unread message are not folded."
 
 (defun mu4e-headers-toggle-at-point ()
   "Toggle visibility of the thread at point"
-
   (interactive)
-  (if (get-buffer "*mu4e-headers*")
-      (with-current-buffer "*mu4e-headers*"
+  (when (get-buffer "*mu4e-headers*")
+    (with-current-buffer "*mu4e-headers*"
+      (catch 'break
         (save-excursion
-          (let ((keep-searching t))
-            (while keep-searching
-              (if (bobp)
-                  ;; We reached the top. This is the last iteration.
-                  (setq keep-searching nil))
-
-              (let ((child-overlay (mu4e-headers-get-overlay 'thread-child))
-                    (root-overlay  (mu4e-headers-get-overlay 'thread-root)))
-
-                ;; We found the root node
-                (when root-overlay
-                  (let ((id     (overlay-get root-overlay 'thread-id))
-                        (folded (overlay-get root-overlay 'folded)))
-                    (mu4e-headers-overlay-set-visibility (not folded) id)
-                    (setq keep-searching nil)))
-
-                ;; Not a thread, we exit the loop
-                (if (and (not child-overlay) (not root-overlay))
-                    (setq keep-searching nil))
-
-                ;; We go up until we find the root node
-                (forward-line -1))))))))
+          (let (child-overlay root-overlay)
+            (while (not (bobp))
+              (cl-loop for ov in (overlays-in (save-excursion
+                                                (forward-line 0)
+                                                (move-to-column 3 t)
+                                                (point))
+                                              (point-at-eol))
+                       when (overlay-get ov 'thread-child)
+                       return (setq child-overlay ov)
+                       when (overlay-get ov 'thread-root)
+                       return (setq root-overlay ov))
+              (cond (root-overlay
+                     (let ((id     (overlay-get root-overlay 'thread-id))
+                           (folded (overlay-get root-overlay 'folded)))
+                       (mu4e-headers-overlay-set-visibility (not folded) id)
+                       (throw 'break nil)))
+                    ((not child-overlay)
+                     (throw 'break nil))
+                    (t (forward-line -1))))))))))
 
 (defun mu4e-headers-toggle-fold-all ()
   "Toggle between all threads unfolded and all threads folded."
