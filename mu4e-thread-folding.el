@@ -148,8 +148,6 @@ This uses the mu4e private API and this might break in future releases."
 
 (defun mu4e-headers-mark-threads ()
   "Mark line in headers view with various information contained in overlays."
-
-  (interactive)
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
       ;; turn on minor mode for key bindings
@@ -257,8 +255,6 @@ This uses the mu4e private API and this might break in future releases."
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
 Unread message are not folded."
-
-  (interactive)
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
       (unless thread-id
