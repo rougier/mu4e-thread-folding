@@ -367,49 +367,28 @@ Unread message are not folded."
         (let ((overlay (mu4e-headers-get-overlay 'thread-id)))
           (mu4e-headers-overlay-set-visibility nil (overlay-get overlay 'thread-id))))))
 
-(defvar mu4e-thread-folding-map
-  (make-sparse-keymap))
+(defvar mu4e-thread-folding-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map mu4e-headers-mode-map)
+    (define-key map (kbd "TAB") 'mu4e-headers-toggle-at-point)
+    (define-key map (kbd "S-<tab>") 'mu4e-headers-toggle-fold-all)
+    map))
 
-;; (define-key mu4e-thread-folding-map (kbd "<left>") 'mu4e-headers-fold-at-point)
-;; (define-key mu4e-thread-folding-map (kbd "<S-left>") 'mu4e-headers-fold-all)
-;; (define-key mu4e-thread-folding-map (kbd "<right>") 'mu4e-headers-unfold-at-point)
-;; (define-key mu4e-thread-folding-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
-(define-key mu4e-thread-folding-map (kbd "TAB") 'mu4e-headers-toggle-at-point)
-(define-key mu4e-thread-folding-map (kbd "S-<tab>") 'mu4e-headers-toggle-fold-all)
-
-(define-minor-mode mu4e-thread-folding-mode
-  "Minor mode for folding threads in mu4e-headers view."
-  ;; The initial value - Set to 1 to enable by default
-  nil
-  ;; The indicator for the mode line.
-  " Threads"
-  ;; The minor mode keymap
-  mu4e-thread-folding-map
-  ;; Make mode global rather than buffer local
-  :global nil
-  ;; customization group
-  :group 'mu4e-thread-folding)
-
-;; Install hooks and keybindings
+;; Install hooks
 (defun mu4e-thread-folding-load ()
   "Install hooks."
   (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
   (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
 
-(mu4e-thread-folding-load)
+(define-minor-mode mu4e-thread-folding-mode
+  "Minor mode for folding threads in mu4e-headers view."
+  :group 'mu4e-thread-folding
+  :lighter " Threads"
+  (if mu4e-thread-folding-mode
+      (mu4e-thread-folding-load)
+    (remove-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
+    (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)))
 
-(defun mu4e-thread-folding-unload-function ()
-  "Handler for `unload-feature'."
-  (condition-case err
-      (progn
-        (remove-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-        (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
-        ;; Return nil if unloading was successful.  Refer to `unload-feature'.
-        nil)
-    ;; If any error occurred, return non-nil.
-    (error (progn
-             (message "Error unloading mu4e-thread-folding: %S %S" (car err) (cdr err))
-             t))))
 
 (provide 'mu4e-thread-folding)
 ;;; mu4e-thread-folding.el ends here
