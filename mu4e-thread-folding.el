@@ -380,6 +380,7 @@ Unread message are not folded."
   (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
   (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
 
+;;;###autoload
 (define-minor-mode mu4e-thread-folding-mode
   "Minor mode for folding threads in mu4e-headers view."
   :group 'mu4e-thread-folding
