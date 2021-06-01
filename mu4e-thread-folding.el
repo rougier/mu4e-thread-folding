@@ -55,6 +55,8 @@
 (require 'mu4e)
 (require 'color)
 
+(defvar mu4e-thread-folding-mode nil)
+
 (defun color-darken (hexcolor percent)
   (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
                (`(,H ,S ,L) (color-rgb-to-hsl R G B))
@@ -263,7 +265,6 @@ Unread message are not folded."
         (goto-char (point-min))
         (let ((root-overlay  nil)
               (child-overlay nil)
-              (root-prefix-beg (car mu4e-thread-folding-root-prefix-position))
               (root-folded-face 'mu4e-thread-folding-root-folded-face)
               (root-unfolded-face 'mu4e-thread-folding-root-unfolded-face)
               (root-folded-prefix mu4e-thread-folding-root-folded-prefix-string)
