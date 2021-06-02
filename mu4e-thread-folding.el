@@ -315,10 +315,7 @@ Unread message are not folded."
         (save-excursion
           (let (child-overlay root-overlay)
             (while (not (bobp))
-              (cl-loop for ov in (overlays-in (save-excursion
-                                                (forward-line 0)
-                                                (point))
-                                              (point-at-eol))
+              (cl-loop for ov in (overlays-at (point))
                        when (overlay-get ov 'thread-child)
                        return (setq child-overlay ov)
                        when (overlay-get ov 'thread-root)
