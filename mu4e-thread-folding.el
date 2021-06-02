@@ -186,8 +186,7 @@ This uses the mu4e private API and this might break in future releases."
 
                   ;; Warning: might break in the future
                   (docid (mu4e-message-field msg :docid))
-                  (prefix-start (+ (length mu4e~mark-fringe)
-                                   (mu4e~headers-goto-docid docid t)))
+                  (prefix-start (save-excursion (mu4e~headers-goto-docid docid t)))
 
                   (unread (member 'unread (mu4e-message-field msg :flags)))
 
@@ -318,7 +317,6 @@ Unread message are not folded."
             (while (not (bobp))
               (cl-loop for ov in (overlays-in (save-excursion
                                                 (forward-line 0)
-                                                (move-to-column 3 t)
                                                 (point))
                                               (point-at-eol))
                        when (overlay-get ov 'thread-child)
