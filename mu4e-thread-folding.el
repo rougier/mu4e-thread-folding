@@ -158,7 +158,7 @@ This uses the mu4e private API and this might break in future releases."
       (remove-overlays (point-min) (point-max))
 
       (let ((overlay-priority     -60)
-            (folded               (if (string= mu4e-thread-folding-default-view 'folded) t nil))
+            (folded               (string= mu4e-thread-folding-default-view 'folded))
 
             (child-face           'mu4e-thread-folding-child-face)
             (child-prefix-beg     (car mu4e-thread-folding-child-prefix-position))
