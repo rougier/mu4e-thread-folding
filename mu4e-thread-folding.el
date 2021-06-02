@@ -102,7 +102,7 @@
        :underline nil
        :foreground nil
        :background ,(color-lighten
-                     (face-attribute 'default :background) 5)))
+                     (face-attribute 'default :background) 10)))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
