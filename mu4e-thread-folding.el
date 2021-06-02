@@ -313,21 +313,25 @@ Unread message are not folded."
     (with-current-buffer "*mu4e-headers*"
       (catch 'break
         (save-excursion
-          (let (child-overlay root-overlay)
-            (while (not (bobp))
-              (cl-loop for ov in (overlays-at (point))
-                       when (overlay-get ov 'thread-child)
-                       return (setq child-overlay ov)
-                       when (overlay-get ov 'thread-root)
-                       return (setq root-overlay ov))
-              (cond (root-overlay
-                     (let ((id     (overlay-get root-overlay 'thread-id))
-                           (folded (overlay-get root-overlay 'folded)))
-                       (mu4e-headers-overlay-set-visibility (not folded) id)
-                       (throw 'break nil)))
-                    ((not child-overlay)
-                     (throw 'break nil))
-                    (t (forward-line -1))))))))))
+          (while (and (not (mu4e-headers--toggle-internal))
+                      (not (bobp)))
+            (forward-line -1)))))))
+
+(defun mu4e-headers--toggle-internal ()
+  "Toggle visibility of the thread at point"
+  (let (child-overlay root-overlay)
+    (cl-loop for ov in (overlays-in (point-at-bol) (point-at-eol))
+             when (overlay-get ov 'thread-child)
+             return (setq child-overlay ov)
+             when (overlay-get ov 'thread-root)
+             return (setq root-overlay ov))
+    (cond (root-overlay
+           (let ((id     (overlay-get root-overlay 'thread-id))
+                 (folded (overlay-get root-overlay 'folded)))
+             (mu4e-headers-overlay-set-visibility (not folded) id)
+             (throw 'break t)))
+          ((not child-overlay)
+           (throw 'break t)))))
 
 (defun mu4e-headers-toggle-fold-all ()
   "Toggle between all threads unfolded and all threads folded."
