@@ -285,10 +285,9 @@ Unread message are not folded."
   (when (get-buffer "*mu4e-headers*")
     (with-current-buffer "*mu4e-headers*"
       (catch 'break
-        (save-excursion
-          (while (and (not (mu4e-headers--toggle-internal))
-                      (not (bobp)))
-            (forward-line -1)))))))
+        (while (and (not (mu4e-headers--toggle-internal))
+                    (not (bobp)))
+          (forward-line -1))))))
 
 (defun mu4e-headers--toggle-internal ()
   "Toggle visibility of the thread at point"
