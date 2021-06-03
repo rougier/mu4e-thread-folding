@@ -160,20 +160,14 @@ This uses the mu4e private API and this might break in future releases."
       (unless no-reset (setq mu4e-headers--folded-items nil))
       (setq left-margin-width 1)
       (set-window-buffer (selected-window) (current-buffer))
-      (let ((overlay-priority     -60)
+      (let ((overlay-priority     60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
             (child-face           'mu4e-thread-folding-child-face)
-            (child-prefix-beg     (car mu4e-thread-folding-child-prefix-position))
-            (child-prefix-end     (cdr mu4e-thread-folding-child-prefix-position))
-            (child-prefix         'mu4e-thread-folding-child-prefix-string)
             (root-id              nil)
             (root-overlay         nil)
-            (root-prefix-overlay  nil)
             (root-unread-child    nil)
             (root-folded-face     'mu4e-thread-folding-root-folded-face)
             (root-unfolded-face   'mu4e-thread-folding-root-unfolded-face)
-            (root-prefix-beg      (car mu4e-thread-folding-root-prefix-position))
-            (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
             (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
             (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
         ;; store initial folded state
@@ -182,20 +176,10 @@ This uses the mu4e private API and this might break in future releases."
         (mu4e-headers-for-each
          (lambda (msg)
            (let* ((id     (mu4e-headers-get-thread-id msg))
-                  ;; Warning: might break in the future
-                  ;; (docid (mu4e-message-field msg :docid))
-                  ;; (prefix-start (save-excursion (mu4e~headers-goto-docid docid t)))
                   (unread (member 'unread (mu4e-message-field msg :flags)))
-                  ;; Overlay for child (prefix)
-                  ;; (child-prefix-overlay (make-overlay
-                  ;;                        (+ prefix-start child-prefix-beg)
-                  ;;                        (+ prefix-start child-prefix-end)))
-                  ;; Overlay for child (whole line)
                   (child-overlay (make-overlay
                                   (line-beginning-position)
-                                  (+ 1 (line-end-position))
-                                  ;; (line-end-position)
-                                  )))
+                                  (+ 1 (line-end-position)))))
              (setq folded (or (and (member id mu4e-headers--folded-items) t)
                               mu4e-thread-folding-all-folded))
              ;; We mark the root thread if and only if there's child
@@ -212,8 +196,6 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-overlay 'unread unread)
                    (overlay-put child-overlay 'thread-child t)
                    (overlay-put child-overlay 'thread-id id)
-                   ;; (overlay-put child-prefix-overlay 'display child-prefix)
-                   ;; (overlay-put child-overlay 'before-string (propertize " " 'display `((margin left-margin) ,child-prefix)))
                    ;; Root
                    (if (or root-unread-child (not folded))
                        (progn
@@ -223,7 +205,6 @@ This uses the mu4e private API and this might break in future releases."
                      (overlay-put root-overlay 'before-string (propertize " " 'display `((margin left-margin) ,root-folded-prefix))))
                    (overlay-put root-overlay 'priority overlay-priority)
                    (overlay-put root-overlay 'thread-root t)
-                   ;; (overlay-put root-overlay 'prefix-overlay root-prefix-overlay)
                    (overlay-put root-overlay 'thread-id id)
                    (overlay-put root-overlay 'folded folded))
                ;; Else, set the new root (this relies on default message order in header's view)
@@ -231,10 +212,7 @@ This uses the mu4e private API and this might break in future releases."
                      root-unread-child nil
                      root-overlay (make-overlay
                                    (line-beginning-position)
-                                   (line-end-position)
-                                   ;; (+ 0 (line-beginning-position))
-                                   ;; (+ 1 (line-end-position))
-                                   ))))))))))
+                                   (line-end-position)))))))))))
 
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
