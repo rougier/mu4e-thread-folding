@@ -373,7 +373,8 @@ Unread message are not folded."
 (defun mu4e-thread-folding-load ()
   "Install hooks."
   (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
+  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
+  (add-hook 'mu4e-view-mode-hook 'mu4e-headers-mark-threads-no-reset))
 
 ;;;###autoload
 (define-minor-mode mu4e-thread-folding-mode
@@ -383,7 +384,8 @@ Unread message are not folded."
   (if mu4e-thread-folding-mode
       (mu4e-thread-folding-load)
     (remove-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-    (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)))
+    (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
+    (remove-hook 'mu4e-view-mode-hook 'mu4e-headers-mark-threads-no-reset)))
 
 
 (provide 'mu4e-thread-folding)
