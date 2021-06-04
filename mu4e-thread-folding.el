@@ -139,7 +139,7 @@ This uses the mu4e private API and this might break in future releases."
   (mu4e~headers-get-thread-info msg 'thread-id))
 
 
-(defun mu4e-headers-mark-threads (&optional no-reset)
+(defun mu4e-headers-mark-threads ()
   "Mark line in headers view with various information contained in overlays."
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
@@ -147,7 +147,6 @@ This uses the mu4e private API and this might break in future releases."
       (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
       ;; Remove all overlays
       (remove-overlays (point-min) (point-max))
-      (unless no-reset (setq mu4e-headers--folded-items nil))
       (set-window-margins (selected-window) 1)
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
@@ -263,10 +262,6 @@ Unread message are not folded."
               ;; Now switch to next line.
               (forward-line 1))))))))
 
-(defun mu4e-headers-mark-threads-no-reset ()
-  "Same as `mu4e-headers-mark-threads' but don't reset `mu4e-headers--folded-items'."
-  (mu4e-headers-mark-threads 'no-reset))
-
 (defun mu4e-headers-get-overlay (prop &optional index)
   "Get overlay at point having the PROP property"
   (let* ((index (or index 0))
@@ -300,10 +295,6 @@ Unread message are not folded."
     (cond (root-overlay
            (let ((id     (overlay-get root-overlay 'thread-id))
                  (folded (overlay-get root-overlay 'folded)))
-             (if folded
-                 (setq mu4e-headers--folded-items
-                       (delete id mu4e-headers--folded-items))
-               (push id mu4e-headers--folded-items))
              (mu4e-headers-overlay-set-visibility (not folded) id)
              (throw 'break t)))
           ((not child-overlay)
