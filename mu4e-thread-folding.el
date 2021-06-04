@@ -177,9 +177,7 @@ This uses the mu4e private API and this might break in future releases."
                    (setq root-unread-child (or root-unread-child unread))
                    ;; Child
                    (overlay-put child-overlay 'face child-face)
-                   (if (and folded (not unread))
-                       (overlay-put child-overlay 'invisible t)
-                     (overlay-put child-overlay 'invisible nil))
+                   (overlay-put child-overlay 'invisible (and folded (not unread)))
                    (overlay-put child-overlay 'priority overlay-priority)
                    (overlay-put child-overlay 'unread unread)
                    (overlay-put child-overlay 'thread-child t)
