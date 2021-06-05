@@ -80,30 +80,19 @@
 
 (defface mu4e-thread-folding-root-unfolded-face
   `((t :extend t
-       :overline nil ;; ,(color-darken nano-color-background 10)
-       :underline nil
-       :foreground nil
-       :background ,(color-darken
-                     (face-attribute 'default :background) 3)))
+       :background "Palegreen4"))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-root-folded-face
-  '((t :inherit nil
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background nil))
+  '((t :background "DarkGreen" :extend t))
   "Face for the root node of a thread when it is folded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-child-face
   `((t :extend t
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background ,(color-lighten
-                     (face-attribute 'default :background) 10)))
+       :foreground "Black"
+       :background "Darkseagreen2"))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
