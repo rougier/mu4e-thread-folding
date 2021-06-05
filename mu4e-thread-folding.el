@@ -242,7 +242,7 @@ Unread message are not folded."
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
       (unless thread-id
-        (setq mu4e-thread-folding-all-folded (not value)))
+        (setq mu4e-thread-folding-all-folded value))
       (save-excursion
         (goto-char (point-min))
         (let ((root-overlay  nil)
@@ -322,7 +322,7 @@ Unread message are not folded."
 (defun mu4e-headers-toggle-fold-all ()
   "Toggle between all threads unfolded and all threads folded."
   (interactive)
-  (mu4e-headers-overlay-set-visibility mu4e-thread-folding-all-folded))
+  (mu4e-headers-overlay-set-visibility (not mu4e-thread-folding-all-folded)))
 
 (defun mu4e-headers-fold-all ()
   "Fold all threads"
