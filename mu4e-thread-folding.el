@@ -251,7 +251,6 @@ Unread message are not folded."
               (root-unfolded-face 'mu4e-thread-folding-root-unfolded-face)
               (root-folded-prefix mu4e-thread-folding-root-folded-prefix-string)
               (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
-
           (while (not (eobp))
             (let (local-child-overlay local-root-overlay)
               (cl-loop for ov in (overlays-at (point))
@@ -264,11 +263,10 @@ Unread message are not folded."
                 (let ((id     (overlay-get local-child-overlay 'thread-id))
                       (unread (overlay-get local-child-overlay 'unread)))
                   (setq child-overlay local-child-overlay)
-                  (if (or (not thread-id) (string= id thread-id))
-                      (if unread
-                          (if root-overlay (overlay-put root-overlay 'face root-unfolded-face))
-                        (overlay-put child-overlay 'invisible value)))))
-
+                  (when (or (not thread-id) (string= id thread-id))
+                    (if unread
+                        (and root-overlay (overlay-put root-overlay 'face root-unfolded-face))
+                      (overlay-put child-overlay 'invisible value)))))
               ;; Root header
               (when local-root-overlay
                 (let* ((id                  (overlay-get local-root-overlay 'thread-id))
@@ -276,16 +274,13 @@ Unread message are not folded."
                   (setq root-overlay local-root-overlay)
                   (when (or (not thread-id) (string= id thread-id))
                     (overlay-put root-overlay 'folded value)
-                    (if value
-                        (progn (overlay-put root-prefix-overlay 'display root-folded-prefix)
-                               (overlay-put root-overlay 'face root-folded-face))
-                      (progn (overlay-put root-prefix-overlay 'display root-unfolded-prefix)
-                             (overlay-put root-overlay 'face root-unfolded-face))))))
-
+                    (overlay-put root-prefix-overlay
+                                 'display (if value root-folded-prefix root-unfolded-prefix))
+                    (overlay-put root-overlay
+                                 'face (if value root-folded-face root-unfolded-face)))))
               ;; Not a root, not a child, we reset the root overlay
               (when (and (not local-child-overlay) (not local-root-overlay))
                 (setq root-overlay nil))
-
               (forward-line 1))))))))
 
 
