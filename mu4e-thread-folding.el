@@ -261,8 +261,8 @@ Unread message are not folded."
                      (unread (overlay-get local-child-overlay 'unread)))
                  (setq child-overlay local-child-overlay)
                  (when (or (not thread-id) (string= id thread-id))
-                   (if unread
-                       (and root-overlay (overlay-put root-overlay 'face root-unfolded-face))
+                   (if (and root-overlay unread)
+                       (overlay-put root-overlay 'face root-unfolded-face)
                      (overlay-put child-overlay 'invisible value)))))
              ;; Root header
              (when local-root-overlay
