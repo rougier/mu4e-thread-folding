@@ -179,7 +179,7 @@ This uses the mu4e private API and this might break in future releases."
                                          (+ prefix-start child-prefix-end)))
                   ;; Overlay for child (whole line)
                   (child-overlay (make-overlay
-                                  (+ 0 (line-beginning-position))
+                                  (line-beginning-position)
                                   (+ 1 (line-end-position)))))
              (setq folded (or (and (member id mu4e-headers--folded-items) t)
                               mu4e-thread-folding-all-folded))
@@ -270,6 +270,10 @@ Unread message are not folded."
                       (root-prefix-overlay (overlay-get local-root-overlay 'prefix-overlay)))
                  (setq root-overlay local-root-overlay)
                  (when (or (not thread-id) (string= id thread-id))
+                   (if (and (overlay-get root-overlay 'folded) (null value))
+                       (setq mu4e-headers--folded-items
+                             (delete id mu4e-headers--folded-items))
+                     (push id mu4e-headers--folded-items))
                    (overlay-put root-overlay 'folded value)
                    (overlay-put root-prefix-overlay
                                 'display (if value root-folded-prefix root-unfolded-prefix))
@@ -301,10 +305,6 @@ Unread message are not folded."
     (cond (root-overlay
            (let ((id     (overlay-get root-overlay 'thread-id))
                  (folded (overlay-get root-overlay 'folded)))
-             (if folded
-                 (setq mu4e-headers--folded-items
-                       (delete id mu4e-headers--folded-items))
-               (push id mu4e-headers--folded-items))
              (mu4e-headers-overlay-set-visibility (not folded) id)
              (throw 'break t)))
           ((not child-overlay)
