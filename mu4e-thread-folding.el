@@ -144,6 +144,7 @@ This uses the mu4e private API and this might break in future releases."
     (with-current-buffer "*mu4e-headers*"
       ;; turn on minor mode for key bindings
       (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
+      (setq-local line-move-ignore-invisible t)
       ;; Remove all overlays
       (remove-overlays (point-min) (point-max))
       (unless no-reset (setq mu4e-headers--folded-items nil))
@@ -163,6 +164,7 @@ This uses the mu4e private API and this might break in future releases."
             (root-prefix-end      (cdr mu4e-thread-folding-root-prefix-position))
             (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
             (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
+        (setq-local line-move-visual t)
         ;; store initial folded state
         (setq mu4e-thread-folding-all-folded folded)
         ;; Iterate over each header
