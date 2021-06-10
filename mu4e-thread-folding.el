@@ -186,7 +186,8 @@ This uses the mu4e private API and this might break in future releases."
                   ;; Overlay for child (whole line)
                   (child-overlay (make-overlay
                                   (line-beginning-position)
-                                  (+ 1 (line-end-position)))))
+                                  (+ 1 (line-end-position))))
+                  fstate)
              (setq folded (or (and (member id mu4e-headers--folded-items) t)
                               mu4e-thread-folding-all-folded))
              ;; We mark the root thread if and only if there's child
@@ -196,9 +197,7 @@ This uses the mu4e private API and this might break in future releases."
                    (setq root-unread-child (or root-unread-child unread))
                    ;; Child
                    (overlay-put child-overlay 'face child-face)
-                   (if (and folded (not unread))
-                       (overlay-put child-overlay 'invisible t)
-                     (overlay-put child-overlay 'invisible nil))
+                   (overlay-put child-overlay 'invisible (and folded (not unread)))
                    (overlay-put child-overlay 'priority overlay-priority)
                    (overlay-put child-overlay 'unread unread)
                    (overlay-put child-overlay 'thread-child t)
@@ -206,12 +205,11 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-prefix-overlay 'display child-prefix)
                    (overlay-put child-prefix-overlay 'child-prefix t)
                    ;; Root
-                   (if (or root-unread-child (not folded))
-                       (progn
-                         (overlay-put root-overlay 'face root-unfolded-face)
-                         (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
-                     (overlay-put root-overlay 'face root-folded-face)
-                     (overlay-put root-prefix-overlay 'display root-folded-prefix))
+                   (setq fstate (or root-unread-child (not folded)))
+                   (overlay-put root-overlay
+                                'face (if fstate root-unfolded-face root-folded-face))
+                   (overlay-put root-prefix-overlay
+                                'display (if fstate root-unfolded-prefix root-folded-prefix))
                    (overlay-put root-prefix-overlay 'root-prefix t)
                    (overlay-put root-overlay 'priority overlay-priority)
                    (overlay-put root-overlay 'thread-root t)
