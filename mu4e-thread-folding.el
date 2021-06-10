@@ -145,8 +145,12 @@ This uses the mu4e private API and this might break in future releases."
       ;; turn on minor mode for key bindings
       (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
       (setq-local line-move-ignore-invisible t)
-      ;; Remove all overlays
-      (remove-overlays (point-min) (point-max))
+      ;; Remove only our overlays to prevent deleting marks.
+      (cl-loop with names = '(thread-child thread-root prefix-child prefix-root)
+               for ov being the overlays
+               when (cl-loop for name in names
+                             thereis (overlay-get ov name))
+               do (delete-overlay ov))
       (unless no-reset (setq mu4e-headers--folded-items nil))
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
@@ -200,6 +204,7 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-overlay 'thread-child t)
                    (overlay-put child-overlay 'thread-id id)
                    (overlay-put child-prefix-overlay 'display child-prefix)
+                   (overlay-put child-prefix-overlay 'child-prefix t)
                    ;; Root
                    (if (or root-unread-child (not folded))
                        (progn
@@ -207,6 +212,7 @@ This uses the mu4e private API and this might break in future releases."
                          (overlay-put root-prefix-overlay 'display root-unfolded-prefix))
                      (overlay-put root-overlay 'face root-folded-face)
                      (overlay-put root-prefix-overlay 'display root-folded-prefix))
+                   (overlay-put root-prefix-overlay 'root-prefix t)
                    (overlay-put root-overlay 'priority overlay-priority)
                    (overlay-put root-overlay 'thread-root t)
                    (overlay-put root-overlay 'prefix-overlay root-prefix-overlay)
