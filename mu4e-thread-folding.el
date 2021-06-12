@@ -143,6 +143,8 @@ This uses the mu4e private API and this might break in future releases."
   "Mark line in headers view with various information contained in overlays."
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
+      (setq-local line-move-visual t
+                  line-move-ignore-invisible t)
       ;; turn on minor mode for key bindings
       (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
       ;; Remove all overlays
@@ -160,14 +162,25 @@ This uses the mu4e private API and this might break in future releases."
             (root-unfolded-prefix mu4e-thread-folding-root-unfolded-prefix-string))
         ;; store initial folded state
         (setq mu4e-thread-folding-all-folded folded)
+        (setq-local buffer-invisibility-spec '(docid t))
         ;; Iterate over each header
         (mu4e-headers-for-each
          (lambda (msg)
-           (let* ((id     (mu4e-headers-get-thread-id msg))
+           (let* ((docid (mu4e-message-field msg :docid))
+                  (docid-pos (cons (mu4e~headers-goto-docid docid)
+                                   (mu4e~headers-goto-docid docid t)))
+                  (id     (mu4e-headers-get-thread-id msg))
                   (unread (member 'unread (mu4e-message-field msg :flags)))
                   (child-overlay (make-overlay
                                   (line-beginning-position)
-                                  (+ 1 (line-end-position)))))
+                                  (+ 1 (line-end-position))))
+                  (docid-overlay (make-overlay
+                                  ;; For this we need a space before
+                                  ;; the pesty docid cookie at bol.
+                                  (1+ (car docid-pos))
+                                  (cdr docid-pos))))
+             (overlay-put docid-overlay 'invisible 'docid)
+             (overlay-put docid-overlay 'priority 1)
              (setq folded (or (and (member id mu4e-headers--folded-items) t)
                               mu4e-thread-folding-all-folded))
              ;; We mark the root thread if and only if there's child
@@ -193,11 +206,13 @@ This uses the mu4e private API and this might break in future releases."
                       (propertize " " 'display `((margin left-margin)
                                                  ,(if no-fold
                                                       root-unfolded-prefix
-                                                    root-folded-prefix)))))
-                   (overlay-put root-overlay 'priority overlay-priority)
+                                                    root-folded-prefix))
+                                  'face 'default)))
+                   ;(overlay-put root-overlay 'priority 1)
                    (overlay-put root-overlay 'thread-root t)
                    (overlay-put root-overlay 'thread-id id)
-                   (overlay-put root-overlay 'folded folded))
+                   (overlay-put root-overlay 'folded folded)
+                   (overlay-put root-overlay 'invisible 'root))
                ;; Else, set the new root (this relies on default message order in header's view)
                (setq root-id id
                      root-unread-child nil
