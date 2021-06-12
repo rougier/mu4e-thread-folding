@@ -104,7 +104,7 @@
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
-(defcustom mu4e-thread-folding-default-view 'unfolded
+(defcustom mu4e-thread-folding-default-view 'folded
   "Initial folding status ('folded or 'unfolded)."
   :type 'string
   :group 'mu4e-thread-folding)
@@ -188,7 +188,7 @@ This uses the mu4e private API and this might break in future releases."
                     (docid (mu4e-message-field msg :docid))
                     (prefix-start (+ (length mu4e~mark-fringe)
                                      (mu4e~headers-goto-docid docid t)))
-
+                    (flagged (member 'flagged (mu4e-message-field msg :flags)))
                     (unread (member 'unread (mu4e-message-field msg :flags)))
 
                    ;; Overlay for child (prefix)
@@ -207,7 +207,8 @@ This uses the mu4e private API and this might break in future releases."
                      ;; unread-child indicates that there's at least one unread child
                      (setq root-unread-child (or root-unread-child unread))
                      ;; Child
-                     (overlay-put child-overlay 'face child-face)
+                     (if (and (not unread) (not flagged))
+                         (overlay-put child-overlay 'face child-face))
                      (if (and folded (not unread))
                          (overlay-put child-overlay 'invisible t)
                        (overlay-put child-overlay 'invisible nil))
