@@ -146,6 +146,7 @@ This uses the mu4e private API and this might break in future releases."
                              thereis (overlay-get ov name))
                do (delete-overlay ov))
       (unless no-reset (setq mu4e-headers--folded-items nil))
+      (setq-local left-margin-width 1)
       (set-window-margins (selected-window) 1)
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
