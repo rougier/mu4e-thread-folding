@@ -340,7 +340,7 @@ Unread message are not folded."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map mu4e-headers-mode-map)
     (define-key map (kbd "TAB") 'mu4e-headers-toggle-at-point)
-    (define-key map (kbd "<C-tab>") 'mu4e-headers-toggle-fold-all)
+    (define-key map (kbd "<S-tab>") 'mu4e-headers-toggle-fold-all)
     map))
 
 ;; Install hooks
