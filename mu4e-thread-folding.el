@@ -94,6 +94,11 @@
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
+(defface mu4e-thread-folding-root-prefix-face
+  `((t :inherit default))
+  "Face for the root node thread when it is unfolded."
+  :group 'mu4e-thread-folding)
+
 (defcustom mu4e-thread-folding-default-view 'unfolded
   "Initial folding status ('folded or 'unfolded)."
   :type 'string
@@ -193,10 +198,14 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put root-overlay 'prefix-docid docid-overlay)
                    (overlay-put
                     docid-overlay 'before-string
-                    (propertize " " 'display `((margin left-margin)
-                                               ,(if (or root-unread-child (not folded))
-                                                    root-unfolded-prefix
-                                                  root-folded-prefix))))
+                    (propertize
+                     " " 'display
+                     `((margin left-margin)
+                       ,(propertize
+                         (if (or root-unread-child (not folded))
+                             root-unfolded-prefix
+                           root-folded-prefix)
+                         'face 'mu4e-thread-folding-root-prefix-face))))
                    (overlay-put docid-overlay 'invisible 'docid)
                    (overlay-put docid-overlay 'priority 1)
                    (overlay-put docid-overlay 'root-prefix t))
@@ -261,9 +270,12 @@ Unread message are not folded."
                       (overlay-get root-overlay 'prefix-docid) 'before-string
                       (propertize
                        " " 'display
-                       `((margin left-margin) ,(if value
-                                                   root-folded-prefix
-                                                 root-unfolded-prefix))))
+                       `((margin left-margin)
+                         ,(propertize
+                           (if value
+                               root-folded-prefix
+                             root-unfolded-prefix)
+                           'face 'mu4e-thread-folding-root-prefix-face))))
                      (overlay-put
                       root-overlay 'face (if value
                                              root-folded-face
