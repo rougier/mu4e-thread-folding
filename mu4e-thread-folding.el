@@ -151,6 +151,7 @@ This uses the mu4e private API and this might break in future releases."
                   (docid-pos (cons (mu4e~headers-goto-docid docid)
                                    (mu4e~headers-goto-docid docid t)))
                   (id     (mu4e-headers-get-thread-id msg))
+                  (flagged (member 'flagged (mu4e-message-field msg :flags)))
                   (unread (member 'unread (mu4e-message-field msg :flags)))
                   (child-overlay (make-overlay
                                   (line-beginning-position)
@@ -163,7 +164,8 @@ This uses the mu4e private API and this might break in future releases."
                    ;; unread-child indicates that there's at least one unread child
                    (setq root-unread-child (or root-unread-child unread))
                    ;; Child
-                   (overlay-put child-overlay 'face child-face)
+                   (when (and (not unread) (not flagged))
+                     (overlay-put child-overlay 'face child-face))
                    (overlay-put child-overlay 'invisible (and folded (not unread)))
                    (overlay-put child-overlay 'priority overlay-priority)
                    (overlay-put child-overlay 'unread unread)
