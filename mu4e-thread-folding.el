@@ -179,6 +179,7 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put root-overlay 'thread-root t)
                    (overlay-put root-overlay 'thread-id id)
                    (overlay-put root-overlay 'folded folded)
+                   (overlay-put root-overlay 'priority overlay-priority)
                    (overlay-put root-overlay 'invisible 'root)
                    (overlay-put root-overlay 'prefix-docid docid-overlay)
                    (overlay-put
