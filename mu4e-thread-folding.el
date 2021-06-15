@@ -76,34 +76,21 @@
   "Group for mu4e thread folding options"
   :group 'mu4e)
 
-
-
 (defface mu4e-thread-folding-root-unfolded-face
   `((t :extend t
-       :overline nil ;; ,(color-darken nano-color-background 10)
-       :underline nil
-       :foreground nil
-       :background ,(color-darken
-                     (face-attribute 'default :background) 3)))
+       :background "Palegreen4"))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-root-folded-face
-  '((t :inherit nil
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background nil))
+  '((t :background "DarkGreen" :extend t))
   "Face for the root node of a thread when it is folded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-child-face
   `((t :extend t
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background ,(color-lighten
-                     (face-attribute 'default :background) 10)))
+       :foreground "Black"
+       :background "Darkseagreen2"))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
@@ -156,6 +143,7 @@ This uses the mu4e private API and this might break in future releases."
             (root-id              nil)
             (root-overlay         nil)
             (root-unread-child    nil)
+            docid-overlay
             (root-folded-face     'mu4e-thread-folding-root-folded-face)
             (root-unfolded-face   'mu4e-thread-folding-root-unfolded-face)
             (root-folded-prefix   mu4e-thread-folding-root-folded-prefix-string)
@@ -173,14 +161,7 @@ This uses the mu4e private API and this might break in future releases."
                   (unread (member 'unread (mu4e-message-field msg :flags)))
                   (child-overlay (make-overlay
                                   (line-beginning-position)
-                                  (+ 1 (line-end-position))))
-                  (docid-overlay (make-overlay
-                                  ;; For this we need a space before
-                                  ;; the pesty docid cookie at bol.
-                                  (1+ (car docid-pos))
-                                  (cdr docid-pos))))
-             (overlay-put docid-overlay 'invisible 'docid)
-             (overlay-put docid-overlay 'priority 1)
+                                  (+ 1 (line-end-position)))))
              (setq folded (or (and (member id mu4e-headers--folded-items) t)
                               mu4e-thread-folding-all-folded))
              ;; We mark the root thread if and only if there's child
@@ -196,29 +177,35 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-overlay 'thread-child t)
                    (overlay-put child-overlay 'thread-id id)
                    ;; Root
-                   (let ((no-fold (or root-unread-child (not folded))))
-                     (overlay-put
-                      root-overlay 'face (if no-fold
-                                             root-unfolded-face
-                                           root-folded-face))
-                     (overlay-put
-                      root-overlay 'before-string
-                      (propertize " " 'display `((margin left-margin)
-                                                 ,(if no-fold
-                                                      root-unfolded-prefix
-                                                    root-folded-prefix))
-                                  'face 'default)))
-                   ;(overlay-put root-overlay 'priority 1)
+                   (setq no-fold (or root-unread-child (not folded)))
+                   (overlay-put
+                    root-overlay 'face (if (or root-unread-child (not folded))
+                                           root-unfolded-face
+                                         root-folded-face))
                    (overlay-put root-overlay 'thread-root t)
                    (overlay-put root-overlay 'thread-id id)
                    (overlay-put root-overlay 'folded folded)
-                   (overlay-put root-overlay 'invisible 'root))
+                   (overlay-put root-overlay 'invisible 'root)
+                   (overlay-put root-overlay 'prefix-docid docid-overlay)
+                   (overlay-put
+                    docid-overlay 'before-string
+                    (propertize " " 'display `((margin left-margin)
+                                               ,(if (or root-unread-child (not folded))
+                                                    root-unfolded-prefix
+                                                  root-folded-prefix))))
+                   (overlay-put docid-overlay 'invisible 'docid)
+                   (overlay-put docid-overlay 'priority 1))
                ;; Else, set the new root (this relies on default message order in header's view)
                (setq root-id id
                      root-unread-child nil
                      root-overlay (make-overlay
                                    (line-beginning-position)
-                                   (line-end-position)))))))))))
+                                   (line-end-position))
+                     docid-overlay (make-overlay
+                                    ;; For this we need a space before
+                                    ;; the pesty docid cookie at bol.
+                                    (car docid-pos)
+                                    (cdr docid-pos)))))))))))
 
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
@@ -259,7 +246,7 @@ Unread message are not folded."
                   (when (or (not thread-id) (string= id thread-id))
                     (overlay-put root-overlay 'folded value)
                     (overlay-put
-                     root-overlay 'before-string
+                     (overlay-get root-overlay 'prefix-docid) 'before-string
                      (propertize
                       " " 'display
                       `((margin left-margin) ,(if value
