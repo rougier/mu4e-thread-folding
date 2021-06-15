@@ -207,8 +207,6 @@ This uses the mu4e private API and this might break in future releases."
                                    (line-beginning-position)
                                    (line-end-position))
                      docid-overlay (make-overlay
-                                    ;; For this we need a space before
-                                    ;; the pesty docid cookie at bol.
                                     (car docid-pos)
                                     (cdr docid-pos)))))))))))
 
