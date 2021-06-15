@@ -205,7 +205,7 @@ This uses the mu4e private API and this might break in future releases."
                      root-unread-child nil
                      root-overlay (make-overlay
                                    (line-beginning-position)
-                                   (line-end-position))
+                                   (1+ (line-end-position)))
                      docid-overlay (make-overlay
                                     (car docid-pos)
                                     (cdr docid-pos)))))))))))
