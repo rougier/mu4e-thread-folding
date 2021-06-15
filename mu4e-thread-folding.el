@@ -104,7 +104,7 @@
   :type 'string
   :group 'mu4e-thread-folding)
 
-(defvar mu4e-thread-folding-all-folded t
+(defvar mu4e-thread-folding-all-folded nil
   "Record whether last fold-all state was folded.")
 
 (defun mu4e-headers-get-thread-id (msg)
@@ -212,7 +212,7 @@ Unread message are not folded."
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
       (unless thread-id
-        (setq mu4e-thread-folding-all-folded (not value)))
+        (setq mu4e-thread-folding-all-folded value))
       (save-excursion
         (goto-char (point-min))
         (let ((root-overlay  nil)
@@ -308,7 +308,8 @@ Unread message are not folded."
 (defun mu4e-headers-toggle-fold-all ()
   "Toggle between all threads unfolded and all threads folded."
   (interactive)
-  (mu4e-headers-overlay-set-visibility mu4e-thread-folding-all-folded))
+  (mu4e-headers-overlay-set-visibility
+   (not mu4e-thread-folding-all-folded)))
 
 (defun mu4e-headers-fold-all ()
   "Fold all threads"
@@ -340,7 +341,7 @@ Unread message are not folded."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map mu4e-headers-mode-map)
     (define-key map (kbd "TAB") 'mu4e-headers-toggle-at-point)
-    (define-key map (kbd "<S-tab>") 'mu4e-headers-toggle-fold-all)
+    (define-key map (kbd "<backtab>") 'mu4e-headers-toggle-fold-all)
     map))
 
 ;; Install hooks
