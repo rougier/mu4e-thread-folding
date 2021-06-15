@@ -126,7 +126,7 @@ This uses the mu4e private API and this might break in future releases."
   (mu4e~headers-get-thread-info msg 'thread-id))
 
 
-(defun mu4e-headers-mark-threads ()
+(defun mu4e-headers-mark-threads (&optional no-reset)
   "Mark line in headers view with various information contained in overlays."
   (when (and (get-buffer "*mu4e-headers*") mu4e-headers-show-threads)
     (with-current-buffer "*mu4e-headers*"
@@ -135,7 +135,12 @@ This uses the mu4e private API and this might break in future releases."
       ;; turn on minor mode for key bindings
       (unless mu4e-thread-folding-mode (mu4e-thread-folding-mode 1))
       ;; Remove all overlays
-      (remove-overlays (point-min) (point-max))
+      (cl-loop with names = '(thread-child thread-root root-prefix)
+               for ov being the overlays
+               when (cl-loop for name in names
+                             thereis (overlay-get ov name))
+               do (delete-overlay ov))
+      (unless no-reset (setq mu4e-headers--folded-items nil))
       (set-window-margins (selected-window) 1)
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
@@ -177,7 +182,6 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-overlay 'thread-child t)
                    (overlay-put child-overlay 'thread-id id)
                    ;; Root
-                   (setq no-fold (or root-unread-child (not folded)))
                    (overlay-put
                     root-overlay 'face (if (or root-unread-child (not folded))
                                            root-unfolded-face
@@ -194,7 +198,8 @@ This uses the mu4e private API and this might break in future releases."
                                                     root-unfolded-prefix
                                                   root-folded-prefix))))
                    (overlay-put docid-overlay 'invisible 'docid)
-                   (overlay-put docid-overlay 'priority 1))
+                   (overlay-put docid-overlay 'priority 1)
+                   (overlay-put docid-overlay 'root-prefix t))
                ;; Else, set the new root (this relies on default message order in header's view)
                (setq root-id id
                      root-unread-child nil
@@ -206,6 +211,10 @@ This uses the mu4e private API and this might break in future releases."
                                     ;; the pesty docid cookie at bol.
                                     (car docid-pos)
                                     (cdr docid-pos)))))))))))
+
+(defun mu4e-headers-mark-threads-no-reset ()
+  "Same as `mu4e-headers-mark-threads' but don't reset `mu4e-headers--folded-items'."
+  (mu4e-headers-mark-threads 'no-reset))
 
 (defun mu4e-headers-overlay-set-visibility (value &optional thread-id)
   "Set the invisible property for all thread children or only the ones matching thread-id.
@@ -245,6 +254,10 @@ Unread message are not folded."
                  (let ((id (overlay-get local-root-overlay 'thread-id)))
                    (setq root-overlay local-root-overlay)
                    (when (or (not thread-id) (string= id thread-id))
+                     (if (and (overlay-get root-overlay 'folded) (null value))
+                         (setq mu4e-headers--folded-items
+                               (delete id mu4e-headers--folded-items))
+                       (push id mu4e-headers--folded-items))
                      (overlay-put root-overlay 'folded value)
                      (overlay-put
                       (overlay-get root-overlay 'prefix-docid) 'before-string
@@ -341,7 +354,8 @@ Unread message are not folded."
 (defun mu4e-thread-folding-load ()
   "Install hooks."
   (add-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads))
+  (add-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
+  (add-hook 'mu4e-view-mode-hook 'mu4e-headers-mark-threads-no-reset))
 
 ;;;###autoload
 (define-minor-mode mu4e-thread-folding-mode
@@ -351,7 +365,8 @@ Unread message are not folded."
   (if mu4e-thread-folding-mode
       (mu4e-thread-folding-load)
     (remove-hook 'mu4e-index-updated-hook #'mu4e-headers-mark-threads)
-    (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)))
+    (remove-hook 'mu4e-headers-found-hook #'mu4e-headers-mark-threads)
+    (remove-hook 'mu4e-view-mode-hook 'mu4e-headers-mark-threads-no-reset)))
 
 
 (provide 'mu4e-thread-folding)
