@@ -53,54 +53,24 @@
 
 ;;; Code:
 (require 'mu4e)
-(require 'color)
-
-(defun color-darken (hexcolor percent)
-  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
-               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
-               (`(,H ,S ,L) (color-darken-hsl H S L percent))
-               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
-    (color-rgb-to-hex R G B 2)))
-(defun color-lighten (hexcolor percent)
-  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
-               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
-               (`(,H ,S ,L) (color-lighten-hsl H S L percent))
-               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
-    (color-rgb-to-hex R G B 2)))
 
 
 (defgroup mu4e-thread-folding '()
   "Group for mu4e thread folding options"
   :group 'mu4e)
 
-
-
 (defface mu4e-thread-folding-root-unfolded-face
-  `((t :extend t
-       :overline nil ;; ,(color-darken nano-color-background 10)
-       :underline nil
-       :foreground nil
-       :background ,(color-darken
-                     (face-attribute 'default :background) 3)))
+  `((t :inherit 'default))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-root-folded-face
-  '((t :inherit nil
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background nil))
+  `((t :inherit 'default))
   "Face for the root node of a thread when it is folded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-child-face
-  `((t :extend t
-       :overline nil
-       :underline nil
-       :foreground nil
-       :background ,(color-lighten
-                     (face-attribute 'default :background) 5)))
+  `((t :inherit 'default))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
