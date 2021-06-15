@@ -54,6 +54,8 @@
 ;;; Code:
 (require 'mu4e)
 
+(defvar mu4e-thread-folding-mode nil)
+(defvar mu4e-headers--folded-items nil)
 
 (defgroup mu4e-thread-folding '()
   "Group for mu4e thread folding options"
@@ -72,6 +74,11 @@
 (defface mu4e-thread-folding-child-face
   `((t :inherit 'default))
   "Face for a thread when it is unfolded (child node)"
+  :group 'mu4e-thread-folding)
+
+(defface mu4e-thread-folding-root-prefix-face
+  `((t :inherit default))
+  "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-default-view 'folded
