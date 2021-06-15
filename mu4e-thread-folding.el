@@ -53,23 +53,6 @@
 
 ;;; Code:
 (require 'mu4e)
-(require 'color)
-
-(defvar mu4e-thread-folding-mode nil)
-(defvar mu4e-headers--folded-items nil)
-
-(defun color-darken (hexcolor percent)
-  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
-               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
-               (`(,H ,S ,L) (color-darken-hsl H S L percent))
-               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
-    (color-rgb-to-hex R G B 2)))
-(defun color-lighten (hexcolor percent)
-  (pcase-let* ((`(,R ,G ,B) (color-name-to-rgb hexcolor))
-               (`(,H ,S ,L) (color-rgb-to-hsl R G B))
-               (`(,H ,S ,L) (color-lighten-hsl H S L percent))
-               (`(,R ,G ,B) (color-hsl-to-rgb H S L)))
-    (color-rgb-to-hex R G B 2)))
 
 
 (defgroup mu4e-thread-folding '()
@@ -77,29 +60,21 @@
   :group 'mu4e)
 
 (defface mu4e-thread-folding-root-unfolded-face
-  `((t :extend t
-       :background "Palegreen4"))
+  `((t :inherit 'default))
   "Face for the root node thread when it is unfolded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-root-folded-face
-  '((t :background "DarkGreen" :extend t))
+  `((t :inherit 'default))
   "Face for the root node of a thread when it is folded."
   :group 'mu4e-thread-folding)
 
 (defface mu4e-thread-folding-child-face
-  `((t :extend t
-       :foreground "Black"
-       :background "Darkseagreen2"))
+  `((t :inherit 'default))
   "Face for a thread when it is unfolded (child node)"
   :group 'mu4e-thread-folding)
 
-(defface mu4e-thread-folding-root-prefix-face
-  `((t :inherit default))
-  "Face for the root node thread when it is unfolded."
-  :group 'mu4e-thread-folding)
-
-(defcustom mu4e-thread-folding-default-view 'unfolded
+(defcustom mu4e-thread-folding-default-view 'folded
   "Initial folding status ('folded or 'unfolded)."
   :type 'string
   :group 'mu4e-thread-folding)
