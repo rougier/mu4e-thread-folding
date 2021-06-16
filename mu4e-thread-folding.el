@@ -129,7 +129,8 @@ This uses the mu4e private API and this might break in future releases."
                do (delete-overlay ov))
       (unless no-reset (setq mu4e-headers--folded-items nil))
       (setq-local left-margin-width 1)
-      (set-window-margins (selected-window) 1)
+      (set-window-margins (get-buffer-window "*mu4e-headers*") 1)
+      
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
             (child-face           'mu4e-thread-folding-child-face)
