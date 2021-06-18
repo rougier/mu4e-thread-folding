@@ -129,7 +129,8 @@ This uses the mu4e private API and this might break in future releases."
                do (delete-overlay ov))
       (unless no-reset (setq mu4e-headers--folded-items nil))
       (setq-local left-margin-width 1)
-      (set-window-margins (get-buffer-window "*mu4e-headers*") 1)
+      (if (get-buffer-window "*mu4e-headers*")
+          (set-window-margins (get-buffer-window "*mu4e-headers*") 1))
       
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
@@ -157,8 +158,9 @@ This uses the mu4e private API and this might break in future releases."
                   (child-overlay (make-overlay
                                   (line-beginning-position)
                                   (+ 1 (line-end-position)))))
-             (setq folded (or (and (member id mu4e-headers--folded-items) t)
-                              mu4e-thread-folding-all-folded))
+;;             (setq folded (or (and (member id mu4e-headers--folded-items) t)
+;;                              mu4e-thread-folding-all-folded))
+             (setq folded (member id mu4e-headers--folded-items))
              ;; We mark the root thread if and only if there's child
              (if (string= root-id id)
                  (progn
