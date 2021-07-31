@@ -87,13 +87,13 @@
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-unfolded-prefix-string
-  "▾"
+  "[%2d] ▾"
   "Prefix for the root node thread when it is unfolded."
   :type 'string
   :group 'mu4e-thread-folding)
 
 (defcustom mu4e-thread-folding-root-folded-prefix-string
-  "▸"
+  "[%2d] ▸"
   "Prefix for the root node (when folded)"
   :type 'string
   :group 'mu4e-thread-folding)
@@ -130,11 +130,13 @@ This uses the mu4e private API and this might break in future releases."
       (unless no-reset (setq mu4e-headers--folded-items nil))
       (setq-local left-margin-width 1)
       (if (get-buffer-window "*mu4e-headers*")
-          (set-window-margins (get-buffer-window "*mu4e-headers*") 1))
-      
+          (set-window-margins (get-buffer-window "*mu4e-headers*")
+                              (max (length mu4e-thread-folding-root-folded-prefix-string)
+                                   (length mu4e-thread-folding-root-unfolded-prefix-string))))
       (let ((overlay-priority     -60)
             (folded               (string= mu4e-thread-folding-default-view 'folded))
             (child-face           'mu4e-thread-folding-child-face)
+            (children-number      1)
             (root-id              nil)
             (root-overlay         nil)
             (root-unread-child    nil)
@@ -164,6 +166,8 @@ This uses the mu4e private API and this might break in future releases."
              ;; We mark the root thread if and only if there's child
              (if (string= root-id id)
                  (progn
+                   (setq children-number (+ children-number 1))
+                   
                    ;; unread-child indicates that there's at least one unread child
                    (setq root-unread-child (or root-unread-child unread))
                    ;; Child
@@ -192,21 +196,25 @@ This uses the mu4e private API and this might break in future releases."
                      `((margin left-margin)
                        ,(propertize
                          (if (or root-unread-child (not folded))
-                             root-unfolded-prefix
-                           root-folded-prefix)
+                             (format root-unfolded-prefix children-number)
+                           (format root-folded-prefix children-number))
                          'face 'mu4e-thread-folding-root-prefix-face))))
                    (overlay-put docid-overlay 'invisible 'docid)
                    (overlay-put docid-overlay 'priority 1)
                    (overlay-put docid-overlay 'root-prefix t))
                ;; Else, set the new root (this relies on default message order in header's view)
-               (setq root-id id
+               (progn
+                 (if (> children-number 1)
+                     (overlay-put root-overlay 'children-number children-number))
+                 (setq root-id id
                      root-unread-child nil
+                     children-number 1
                      root-overlay (make-overlay
                                    (line-beginning-position)
                                    (1+ (line-end-position)))
                      docid-overlay (make-overlay
                                     (car docid-pos)
-                                    (cdr docid-pos)))))))))))
+                                    (cdr docid-pos))))))))))))
 
 (defun mu4e-headers-mark-threads-no-reset ()
   "Same as `mu4e-headers-mark-threads' but don't reset `mu4e-headers--folded-items'."
@@ -247,7 +255,8 @@ Unread message are not folded."
                        (overlay-put child-overlay 'invisible value)))))
                ;; Root
                (when local-root-overlay
-                 (let ((id (overlay-get local-root-overlay 'thread-id)))
+                 (let ((children-number (or (overlay-get local-root-overlay 'children-number) 1))
+                       (id (overlay-get local-root-overlay 'thread-id)))
                    (setq root-overlay local-root-overlay)
                    (when (or (not thread-id) (string= id thread-id))
                      (if (and (overlay-get root-overlay 'folded) (null value))
@@ -262,8 +271,8 @@ Unread message are not folded."
                        `((margin left-margin)
                          ,(propertize
                            (if value
-                               root-folded-prefix
-                             root-unfolded-prefix)
+                               (format root-folded-prefix children-number)
+                             (format root-unfolded-prefix children-number))
                            'face 'mu4e-thread-folding-root-prefix-face))))
                      (overlay-put
                       root-overlay 'face (if value
