@@ -86,6 +86,11 @@
   :type 'string
   :group 'mu4e-thread-folding)
 
+(defcustom mu4e-thread-folding-hide-unread nil
+  "Whether or not to hide unread messages when folding."
+  :type 'boolean
+  :group 'mu4e-thread-folding)
+
 (defcustom mu4e-thread-folding-root-unfolded-prefix-string
   "[%2d] ▾"
   "Prefix for the root node thread when it is unfolded."
@@ -250,9 +255,13 @@ Unread message are not folded."
                        (unread (overlay-get local-child-overlay 'unread)))
                    (setq child-overlay local-child-overlay)
                    (when (or (not thread-id) (string= id thread-id))
-                     (if (and root-overlay unread)
-                         (overlay-put root-overlay 'face root-unfolded-face)
-                       (overlay-put child-overlay 'invisible value)))))
+					 (if (and root-overlay
+							  unread
+							  (not mu4e-thread-folding-hide-unread))
+						 ;; keep unread visible
+						 (overlay-put root-overlay 'face root-unfolded-face)
+					   ;; hide unread
+					   (overlay-put child-overlay 'invisible value)))))
                ;; Root
                (when local-root-overlay
                  (let ((children-number (or (overlay-get local-root-overlay 'children-number) 1))
