@@ -104,6 +104,11 @@
   :type 'string
   :group 'mu4e-thread-folding)
 
+(defcustom mu4e-thread-folding-keep-faces nil
+  "Whether or not to overwrite faces."
+  :type 'boolean
+  :group 'mu4e-thread-folding)
+
 (defvar mu4e-thread-folding-all-folded nil
   "Record whether last fold-all state was folded.")
 
@@ -171,7 +176,7 @@ This uses the mu4e private API and this might break in future releases."
                    ;; unread-child indicates that there's at least one unread child
                    (setq root-unread-child (or root-unread-child unread))
                    ;; Child
-                   (when (and (not unread) (not flagged))
+                   (when (and (not unread) (not flagged) (not mu4e-thread-folding-keep-faces))
                      (overlay-put child-overlay 'face child-face))
                    (overlay-put child-overlay 'invisible (and folded (not unread)))
                    (overlay-put child-overlay 'priority overlay-priority)
@@ -179,10 +184,11 @@ This uses the mu4e private API and this might break in future releases."
                    (overlay-put child-overlay 'thread-child t)
                    (overlay-put child-overlay 'thread-id id)
                    ;; Root
-                   (overlay-put
-                    root-overlay 'face (if (or root-unread-child (not folded))
-                                           root-unfolded-face
-                                         root-folded-face))
+				   (when (not mu4e-thread-folding-keep-faces)
+					 (overlay-put
+                      root-overlay 'face (if (or root-unread-child (not folded))
+											 root-unfolded-face
+                                           root-folded-face)))
                    (overlay-put root-overlay 'thread-root t)
                    (overlay-put root-overlay 'thread-id id)
                    (overlay-put root-overlay 'folded folded)
@@ -250,7 +256,7 @@ Unread message are not folded."
                        (unread (overlay-get local-child-overlay 'unread)))
                    (setq child-overlay local-child-overlay)
                    (when (or (not thread-id) (string= id thread-id))
-                     (if (and root-overlay unread)
+                     (if (and root-overlay unread (not mu4e-thread-folding-keep-faces))
                          (overlay-put root-overlay 'face root-unfolded-face)
                        (overlay-put child-overlay 'invisible value)))))
                ;; Root
@@ -274,10 +280,11 @@ Unread message are not folded."
                                (format root-folded-prefix children-number)
                              (format root-unfolded-prefix children-number))
                            'face 'mu4e-thread-folding-root-prefix-face))))
-                     (overlay-put
-                      root-overlay 'face (if value
-                                             root-folded-face
-                                           root-unfolded-face)))))
+					 (when (not mu4e-thread-folding-keep-faces)
+                       (overlay-put
+						root-overlay 'face (if value
+                                               root-folded-face
+											 root-unfolded-face))))))
                ;; Not a root, not a child, we reset the root overlay
                (when (and (not local-child-overlay) (not local-root-overlay))
                  (setq root-overlay nil))))))))))
